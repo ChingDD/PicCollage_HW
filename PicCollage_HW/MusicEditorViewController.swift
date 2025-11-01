@@ -10,6 +10,8 @@ import UIKit
 class MusicEditorViewController: UIViewController {
     let viewModel: MusicEditorViewModel
     
+    let trimmerView: MusicTrimmerView = MusicTrimmerView()
+    
     init(viewModel: MusicEditorViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -21,10 +23,26 @@ class MusicEditorViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("進入 MusicEditorViewController")
-        // Do any additional setup after loading the view.
+        view.addSubview(trimmerView)
+        trimmerView.commonInit(viewModel: viewModel)
+        trimmerView.setAutoLayout(view: view)
+        trimmerView.setDelegate(self)
+        
+        binding()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        trimmerView.layoutIfNeeded()
+        trimmerView.updateUI(viewModel: viewModel)
+    }
+    
+    func binding() {
+        viewModel.start.bind { [weak self] start in
+            guard let self = self else { return }
+            self.trimmerView.updateUI(viewModel: self.viewModel)
+        }
+    }
 
     /*
     // MARK: - Navigation
@@ -36,4 +54,14 @@ class MusicEditorViewController: UIViewController {
     }
     */
 
+}
+
+extension MusicEditorViewController: MusicTrimmerViewDelegate {
+    
+}
+
+extension MusicEditorViewController: KeyTimeViewDelegate {
+    func didTapKeytime(time: Int) {
+        viewModel.shiftTime(to: time)
+    }
 }

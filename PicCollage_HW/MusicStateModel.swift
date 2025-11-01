@@ -17,7 +17,10 @@ struct MusicStateModel {
         totalDuration = value
     }
     
-    mutating func updateCurrentTime(start: Int, offset: Int) {
-        currentTime = start + offset
+    mutating func updateTrimmerRange(by: Int) {
+        let oldStart = selectedRange.start
+        let newRange = selectedRange.shift(by: by, totalDuration: totalDuration)
+        selectedRange = newRange
+        currentTime += newRange.start - oldStart
     }
 }
