@@ -8,11 +8,11 @@
 import Foundation
 
 struct TrimmerRangeModel {
-    var start: Int
-    var end: Int
-    var duration: Int = 10
-    
-    func shift(by offset: Int, totalDuration: Int) -> TrimmerRangeModel {
+    var start: CGFloat
+    var end: CGFloat
+    var duration: CGFloat = 10
+
+    func shift(by offset: CGFloat, totalDuration: CGFloat) -> TrimmerRangeModel {
         let newStart = start + offset
         let newEnd = end + offset
         if newStart < 0 {

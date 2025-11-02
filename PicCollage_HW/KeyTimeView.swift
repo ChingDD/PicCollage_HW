@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol KeyTimeViewDelegate:  MusicTrimmerViewDelegate {
+protocol KeyTimeViewDelegate: MusicTrimmerViewDelegate {
     func didTapKeytime(time: Int)
 }
 
@@ -27,8 +27,8 @@ class KeyTimeView: UIView {
     var keyTimeButtons: [UIButton] = []
     
     // test
-    let fakeKeyTimes = [10, 30, 50, 60, 75]
-    let fakeTotalDuration = 80
+    let fakeKeyTimes: [Int] = [10, 30, 50, 60, 75]
+    let fakeTotalDuration: Int = 80
     
     weak var delegate: KeyTimeViewDelegate?
     
@@ -41,7 +41,7 @@ class KeyTimeView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateKeytimeViewUI(start: Int, keyTimes: [Int], totalDuration: Int) {
+    func updateKeytimeViewUI(start: CGFloat, keyTimes: [CGFloat], totalDuration: CGFloat) {
         updateSelectedRangeView(start: start, totalDuration: totalDuration)
         updatekeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
     }
@@ -94,16 +94,16 @@ class KeyTimeView: UIView {
         }
     }
     
-    private func updateSelectedRangeView(start: Int, totalDuration: Int) {
+    private func updateSelectedRangeView(start: CGFloat, totalDuration: CGFloat) {
         print("Start: \(start)")
         selectedRangeView.frame = CGRect(x: keytimeBar.frame.width / CGFloat(fakeTotalDuration) * CGFloat(start),
                                          y: 0,
                                          width: (keytimeBar.frame.width / CGFloat(fakeTotalDuration) * 10),
                                          height: 16)
     }
-    
-    private func updatekeyTimeButtons(keyTimes: [Int], totalDuration: Int) {
-        for (idx,btn) in keyTimeButtons.enumerated() {
+
+    private func updatekeyTimeButtons(keyTimes: [CGFloat], totalDuration: CGFloat) {
+        for (idx, btn) in keyTimeButtons.enumerated() {
             let time = fakeKeyTimes[idx]
             btn.frame = CGRect(x: keytimeBar.frame.minX + (keytimeBar.frame.width / CGFloat(fakeTotalDuration) * CGFloat(time)),
                                y: keytimeBar.frame.midY - (20 / 2),

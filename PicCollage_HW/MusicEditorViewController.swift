@@ -73,11 +73,18 @@ extension MusicEditorViewController: MusicTrimmerViewDelegate {
 
 extension MusicEditorViewController: KeyTimeViewDelegate {
     func didTapKeytime(time: Int) {
-        viewModel.shiftTime(to: time)
+        viewModel.shiftTime(to: CGFloat(time))
     }
 }
 
 extension MusicEditorViewController: WaveformViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        viewModel.updateTimeFromScrollOffset(
+            contentOffsetX: scrollView.contentOffset.x,
+            contentInsetLeft: scrollView.contentInset.left,
+            contentInsetRight: scrollView.contentInset.right,
+            contentSizeWidth: scrollView.contentSize.width,
+            scrollViewWidth: scrollView.bounds.width
+        )
     }
 }

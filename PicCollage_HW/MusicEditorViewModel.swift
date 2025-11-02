@@ -12,10 +12,10 @@ class MusicEditorViewModel {
     private(set) var state: MusicStateModel
 
     // Observable properties for view binding
-    let currentTime: ObservableObject<Int> = ObservableObject(value: 0)
-    let start: ObservableObject<Int> = ObservableObject(value: 0)
-    let end: ObservableObject<Int> = ObservableObject(value: 0)
-    let totalDuration: ObservableObject<Int> = ObservableObject(value: 0)
+    let currentTime: ObservableObject<CGFloat> = ObservableObject(value: 0)
+    let start: ObservableObject<CGFloat> = ObservableObject(value: 0)
+    let end: ObservableObject<CGFloat> = ObservableObject(value: 0)
+    let totalDuration: ObservableObject<CGFloat> = ObservableObject(value: 0)
 
     var sectionTimeline: String {
         let range = state.selectedRange
@@ -41,15 +41,40 @@ class MusicEditorViewModel {
         updateObservables()
     }
 
-    func shiftTime(to time: Int) {
+    func shiftTime(to time: CGFloat) {
         let shift = time - state.selectedRange.start
         state.updateTrimmerRange(by: shift)
         updateObservables()
     }
 
-    func updateTotalDuration(_ duration: Int) {
+    func updateTotalDuration(_ duration: CGFloat) {
         state.updateTotalDurarion(value: duration)
         updateObservables()
+    }
+
+    func updateTimeFromScrollOffset(
+        contentOffsetX: CGFloat,
+        contentInsetLeft: CGFloat,
+        contentInsetRight: CGFloat,
+        contentSizeWidth: CGFloat,
+        scrollViewWidth: CGFloat
+    ) {
+        // Start from 0
+        let adjustedOffset = contentOffsetX + contentInsetLeft
+        
+        // Changable width
+        let scrollableWidth = contentSizeWidth + contentInsetLeft + contentInsetRight - scrollViewWidth
+        
+        // Changable duration
+        let totalDuration = state.totalDuration
+        let selectedRangeDuration = state.selectedRange.duration
+        let changableDuration = totalDuration - selectedRangeDuration
+
+        guard scrollableWidth > 0 else { return }
+        
+        let currentStart = adjustedOffset / scrollableWidth * changableDuration
+
+        shiftTime(to: currentStart)
     }
 
     // MARK: - Private Methods
@@ -61,11 +86,12 @@ class MusicEditorViewModel {
         totalDuration.value = state.totalDuration
     }
 
-    private func formatTime(_ seconds: Int) -> String {
-        String(format: "%1d:%02d", seconds / 60, seconds % 60)
+    private func formatTime(_ seconds: CGFloat) -> String {
+        let totalSeconds = Int(seconds)
+        return String(format: "%1d:%02d", totalSeconds / 60, totalSeconds % 60)
     }
 
-    private func formatPercentage(_ value: Int, total: Int) -> String {
-        String(format: "%.1f%%", CGFloat(value) / CGFloat(total) * 100)
+    private func formatPercentage(_ value: CGFloat, total: CGFloat) -> String {
+        String(format: "%.1f%%", (value / total) * 100)
     }
 }

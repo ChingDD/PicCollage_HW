@@ -8,16 +8,16 @@
 import Foundation
 
 struct MusicStateModel {
-    var totalDuration: Int
-    var currentTime: Int
-    var keyTimes: [Int]
+    var totalDuration: CGFloat
+    var currentTime: CGFloat
+    var keyTimes: [CGFloat]
     var selectedRange: TrimmerRangeModel
-    
-    mutating func updateTotalDurarion(value: Int) {
+
+    mutating func updateTotalDurarion(value: CGFloat) {
         totalDuration = value
     }
-    
-    mutating func updateTrimmerRange(by: Int) {
+
+    mutating func updateTrimmerRange(by: CGFloat) {
         let oldStart = selectedRange.start
         let newRange = selectedRange.shift(by: by, totalDuration: totalDuration)
         selectedRange = newRange
