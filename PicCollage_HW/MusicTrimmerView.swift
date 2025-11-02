@@ -87,6 +87,7 @@ class MusicTrimmerView: UIView {
     func setDelegate(_ delegate: MusicTrimmerViewDelegate?) {
         self.delegate = delegate
         keyTimeView.delegate = delegate as? KeyTimeViewDelegate
+        waveformView.delegate = delegate as? WaveformViewDelegate
     }
     
     // MARK: - Private Methods

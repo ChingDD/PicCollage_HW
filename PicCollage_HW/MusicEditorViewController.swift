@@ -76,3 +76,8 @@ extension MusicEditorViewController: KeyTimeViewDelegate {
         viewModel.shiftTime(to: time)
     }
 }
+
+extension MusicEditorViewController: WaveformViewDelegate {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    }
+}

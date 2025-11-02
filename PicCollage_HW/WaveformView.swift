@@ -7,9 +7,7 @@
 
 import UIKit
 
-protocol WaveformViewDelegate: MusicTrimmerViewDelegate {
-    
-}
+protocol WaveformViewDelegate: MusicTrimmerViewDelegate, UIScrollViewDelegate {}
 
 class WaveformView: UIView {
     let selectedRangeView: UIView = {
@@ -33,8 +31,12 @@ class WaveformView: UIView {
         return scrollView
     }()
     
-    weak var delegate: WaveformViewDelegate?
-    
+    weak var delegate: WaveformViewDelegate? {
+        didSet {
+            waveScrollView.delegate = delegate
+        }
+    }
+
     init() {
         super.init(frame: .zero)
         commonInit()
