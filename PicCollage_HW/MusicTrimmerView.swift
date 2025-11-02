@@ -77,6 +77,20 @@ class MusicTrimmerView: UIView {
         currentPercentLabel.text = viewModel.currentPercentage
         sectionTimeLabel.text = viewModel.sectionTimeline
         currentTimeLabel.text = viewModel.currentTimeline
+
+        waveformView.updateScrollViewOffset(start: viewModel.start.value,
+                                            duration: viewModel.state.selectedRange.duration,
+                                            totalDuration: viewModel.state.totalDuration)
+    }
+
+    func updateUIWithoutScroll(viewModel: MusicEditorViewModel) {
+        keyTimeView.updateKeytimeViewUI(start: viewModel.start.value,
+                                        keyTimes: viewModel.state.keyTimes,
+                                        totalDuration: viewModel.state.totalDuration)
+        sectionPercentLabel.text = viewModel.sectionPercentage
+        currentPercentLabel.text = viewModel.currentPercentage
+        sectionTimeLabel.text = viewModel.sectionTimeline
+        currentTimeLabel.text = viewModel.currentTimeline
     }
     
     func updateSelectedRangeView(viewModel: MusicEditorViewModel) {

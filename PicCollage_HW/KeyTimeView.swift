@@ -48,7 +48,6 @@ class KeyTimeView: UIView {
     
     @objc func didTapButton(button: UIButton) {
         delegate?.didTapKeytime(time: button.tag)
-        print("time: \(button.tag)")
     }
     
     // MARK: - Private Methods
@@ -95,7 +94,7 @@ class KeyTimeView: UIView {
     }
     
     private func updateSelectedRangeView(start: CGFloat, totalDuration: CGFloat) {
-        print("Start: \(start)")
+        print("updateSelectedRangeView Start: \(start)")
         selectedRangeView.frame = CGRect(x: keytimeBar.frame.width / CGFloat(fakeTotalDuration) * CGFloat(start),
                                          y: 0,
                                          width: (keytimeBar.frame.width / CGFloat(fakeTotalDuration) * 10),
@@ -110,5 +109,6 @@ class KeyTimeView: UIView {
                                width: 20,
                                height: 20)
         }
+        print("updatekeyTimeButtons")
     }
 }

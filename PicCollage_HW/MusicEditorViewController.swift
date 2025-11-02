@@ -44,6 +44,7 @@ class MusicEditorViewController: UIViewController {
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        print("viewDidLayoutSubviews")
         trimmerView.layoutIfNeeded()
         trimmerView.updateUI(viewModel: viewModel)
     }
@@ -51,7 +52,9 @@ class MusicEditorViewController: UIViewController {
     func binding() {
         viewModel.start.bind { [weak self] start in
             guard let self = self else { return }
-            self.trimmerView.updateUI(viewModel: self.viewModel)
+            print("bind")
+            // 只更新 KeyTimeView 和 Labels，不更新 scrollView
+            trimmerView.updateUIWithoutScroll(viewModel: viewModel)
         }
     }
 
@@ -73,6 +76,7 @@ extension MusicEditorViewController: MusicTrimmerViewDelegate {
 
 extension MusicEditorViewController: KeyTimeViewDelegate {
     func didTapKeytime(time: Int) {
+        print("didTapKeytime")
         viewModel.shiftTime(to: CGFloat(time))
     }
 }
