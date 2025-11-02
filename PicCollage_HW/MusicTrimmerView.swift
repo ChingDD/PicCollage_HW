@@ -12,8 +12,8 @@ protocol MusicTrimmerViewDelegate: AnyObject {
 }
 
 class MusicTrimmerView: UIView {
-    private let waveformView = UIView()
-    private var keyTimeView: KeyTimeView = KeyTimeView()
+    private(set) var waveformView = WaveformView()
+    private let keyTimeView: KeyTimeView = KeyTimeView()
     private let keyTimeTitle: UILabel = {
         let label = UILabel()
         label.textColor = .white
@@ -130,7 +130,15 @@ class MusicTrimmerView: UIView {
         NSLayoutConstraint.activate([
             currentTimeLabel.topAnchor.constraint(equalTo: sectionTimeLabel.bottomAnchor, constant: 10),
             currentTimeLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            currentTimeLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
+        ])
+        
+        waveformView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            waveformView.topAnchor.constraint(equalTo: currentTimeLabel.bottomAnchor, constant: 10),
+            waveformView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            waveformView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            waveformView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            waveformView.heightAnchor.constraint(equalToConstant: 100)
         ])
     }
     
@@ -152,5 +160,6 @@ class MusicTrimmerView: UIView {
         addSubview(currentTimeLabel)
         
         addSubview(keyTimeView)
+        addSubview(waveformView)
     }
 }
