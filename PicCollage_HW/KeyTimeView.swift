@@ -22,7 +22,28 @@ class KeyTimeView: UIView {
     
     weak var delegate: KeyTimeViewDelegate?
     
-    func commonInit() {
+    init() {
+        super.init(frame: .zero)
+        commonInit()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func updateKeytimeViewUI(start: Int, keyTimes: [Int], totalDuration: Int) {
+        updateSelectedRangeView(start: start, totalDuration: totalDuration)
+        updatekeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
+    }
+    
+    @objc func didTapButton(button: UIButton) {
+        delegate?.didTapKeytime(time: button.tag)
+        print("time: \(button.tag)")
+    }
+    
+    // MARK: - Private Methods
+    
+    private func commonInit() {
         backgroundColor = .black
         layer.cornerRadius = 20
         setkeytimeBar()
@@ -84,40 +105,4 @@ class KeyTimeView: UIView {
                                height: 20)
         }
     }
-    
-    func updateKeytimeViewUI(start: Int, keyTimes: [Int], totalDuration: Int) {
-        updateSelectedRangeView(start: start, totalDuration: totalDuration)
-        updatekeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
-    }
-    
-    func setAutoLayout(view: UIView) {
-        translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            // Test
-            topAnchor.constraint(equalTo: view.topAnchor, constant: 200),
-//            topAnchor.constraint(equalTo: view.bottomAnchor),
-            heightAnchor.constraint(equalToConstant: 40),
-            leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-    }
-    
-    func updateSelectedRange(shiftRatio: Int) {
-        let shift = keytimeBar.frame.width * CGFloat(shiftRatio)
-        selectedRangeView.frame.origin.x += shift
-    }
-    
-    @objc func didTapButton(button: UIButton) {
-        delegate?.didTapKeytime(time: button.tag)
-        print("time: \(button.tag)")
-    }
-    
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
-    }
-    */
-
 }

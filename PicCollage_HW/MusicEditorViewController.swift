@@ -24,7 +24,6 @@ class MusicEditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(trimmerView)
-        trimmerView.commonInit(viewModel: viewModel)
         trimmerView.setAutoLayout(view: view)
         trimmerView.setDelegate(self)
         

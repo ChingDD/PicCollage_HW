@@ -60,19 +60,13 @@ class MusicTrimmerView: UIView {
     
     weak var delegate: MusicTrimmerViewDelegate?
     
-    func commonInit(viewModel: MusicEditorViewModel) {
-        backgroundColor = .lightGray
-        addSubview(keyTimeTitle)
-        
-        addSubview(sectionPercentLabel)
-        addSubview(currentPercentLabel)
-        
-        addSubview(sectionTimeLabel)
-        addSubview(currentTimeLabel)
-        
-        addSubview(keyTimeView)
-        
-        keyTimeView.commonInit()
+    init() {
+        super.init(frame: .zero)
+        commonInit()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     func updateUI(viewModel: MusicEditorViewModel) {
@@ -143,5 +137,20 @@ class MusicTrimmerView: UIView {
     func setDelegate(_ delegate: MusicTrimmerViewDelegate?) {
         self.delegate = delegate
         keyTimeView.delegate = delegate as? KeyTimeViewDelegate
+    }
+    
+    // MARK: - Private Methods
+    
+    private func commonInit() {
+        backgroundColor = .lightGray
+        addSubview(keyTimeTitle)
+        
+        addSubview(sectionPercentLabel)
+        addSubview(currentPercentLabel)
+        
+        addSubview(sectionTimeLabel)
+        addSubview(currentTimeLabel)
+        
+        addSubview(keyTimeView)
     }
 }
