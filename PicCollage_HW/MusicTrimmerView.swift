@@ -83,35 +83,59 @@ class MusicTrimmerView: UIView {
         
     }
     
-    func setAutoLayout(view: UIView) {
-        // MusicTrimmerView
-        translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+    
+    func setDelegate(_ delegate: MusicTrimmerViewDelegate?) {
+        self.delegate = delegate
+        keyTimeView.delegate = delegate as? KeyTimeViewDelegate
+    }
+    
+    // MARK: - Private Methods
 
-        // SubViews
+    private func commonInit() {
+        backgroundColor = .lightGray
+
+        addSubview(keyTimeTitle)
+        addSubview(sectionPercentLabel)
+        addSubview(currentPercentLabel)
+        addSubview(keyTimeView)
+        addSubview(sectionTimeLabel)
+        addSubview(currentTimeLabel)
+        addSubview(waveformView)
+
+        setupKeyTimeTitle()
+        setupSectionPercentLabel()
+        setupCurrentPercentLabel()
+        setupKeyTimeView()
+        setupSectionTimeLabel()
+        setupCurrentTimeLabel()
+        setupWaveformView()
+    }
+
+    private func setupKeyTimeTitle() {
         keyTimeTitle.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             keyTimeTitle.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            keyTimeTitle.centerXAnchor.constraint(equalTo: centerXAnchor),
+            keyTimeTitle.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
+    }
 
+    private func setupSectionPercentLabel() {
         sectionPercentLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             sectionPercentLabel.topAnchor.constraint(equalTo: keyTimeTitle.bottomAnchor, constant: 10),
             sectionPercentLabel.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
+    }
 
+    private func setupCurrentPercentLabel() {
         currentPercentLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             currentPercentLabel.topAnchor.constraint(equalTo: sectionPercentLabel.bottomAnchor, constant: 10),
             currentPercentLabel.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
+    }
 
+    private func setupKeyTimeView() {
         keyTimeView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             keyTimeView.topAnchor.constraint(equalTo: currentPercentLabel.bottomAnchor, constant: 10),
@@ -119,19 +143,25 @@ class MusicTrimmerView: UIView {
             keyTimeView.leadingAnchor.constraint(equalTo: leadingAnchor),
             keyTimeView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+    }
 
+    private func setupSectionTimeLabel() {
         sectionTimeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             sectionTimeLabel.topAnchor.constraint(equalTo: keyTimeView.bottomAnchor, constant: 10),
             sectionTimeLabel.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
+    }
 
+    private func setupCurrentTimeLabel() {
         currentTimeLabel.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             currentTimeLabel.topAnchor.constraint(equalTo: sectionTimeLabel.bottomAnchor, constant: 10),
-            currentTimeLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            currentTimeLabel.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
-        
+    }
+
+    private func setupWaveformView() {
         waveformView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             waveformView.topAnchor.constraint(equalTo: currentTimeLabel.bottomAnchor, constant: 10),
@@ -140,26 +170,5 @@ class MusicTrimmerView: UIView {
             waveformView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             waveformView.heightAnchor.constraint(equalToConstant: 100)
         ])
-    }
-    
-    func setDelegate(_ delegate: MusicTrimmerViewDelegate?) {
-        self.delegate = delegate
-        keyTimeView.delegate = delegate as? KeyTimeViewDelegate
-    }
-    
-    // MARK: - Private Methods
-    
-    private func commonInit() {
-        backgroundColor = .lightGray
-        addSubview(keyTimeTitle)
-        
-        addSubview(sectionPercentLabel)
-        addSubview(currentPercentLabel)
-        
-        addSubview(sectionTimeLabel)
-        addSubview(currentTimeLabel)
-        
-        addSubview(keyTimeView)
-        addSubview(waveformView)
     }
 }

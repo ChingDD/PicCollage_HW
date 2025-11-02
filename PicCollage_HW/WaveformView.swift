@@ -59,44 +59,46 @@ class WaveformView: UIView {
     }
     
     // MARK: - Private Methods
-    
+
     private func commonInit() {
         backgroundColor = .black
-        setWaveScrollView()
-        setSelectedRangeView()
-        setWaveView()
-    }
-    
-    func setWaveView() {
-        waveScrollView.addSubview(waveView)
-        waveView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            waveView.trailingAnchor.constraint(equalTo: waveScrollView.trailingAnchor),
-            waveView.leadingAnchor.constraint(equalTo: waveScrollView.leadingAnchor),
-            waveView.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
-            waveView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: (0.5 * 100))    // 100 is Test
-        ])
-    }
-    
-    private func setWaveScrollView() {
+
         addSubview(waveScrollView)
+        addSubview(selectedRangeView)
+        waveScrollView.addSubview(waveView)
+
+        setupWaveScrollView()
+        setupSelectedRangeView()
+        setupWaveView()
+    }
+
+    private func setupWaveScrollView() {
         waveScrollView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             waveScrollView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            waveScrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             waveScrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            waveScrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             waveScrollView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: (1/2.5))
         ])
     }
-    
-    private func setSelectedRangeView() {
-        addSubview(selectedRangeView)
+
+    private func setupSelectedRangeView() {
         selectedRangeView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             selectedRangeView.centerYAnchor.constraint(equalTo: centerYAnchor),
             selectedRangeView.centerXAnchor.constraint(equalTo: centerXAnchor),
             selectedRangeView.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
             selectedRangeView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.5)
+        ])
+    }
+
+    private func setupWaveView() {
+        waveView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            waveView.leadingAnchor.constraint(equalTo: waveScrollView.leadingAnchor),
+            waveView.trailingAnchor.constraint(equalTo: waveScrollView.trailingAnchor),
+            waveView.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
+            waveView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: (0.5 * 100))    // 100 is Test
         ])
     }
 }

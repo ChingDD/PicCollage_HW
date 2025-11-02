@@ -24,10 +24,22 @@ class MusicEditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(trimmerView)
-        trimmerView.setAutoLayout(view: view)
+        setupTrimmerView()
         trimmerView.setDelegate(self)
         
         binding()
+    }
+
+    // MARK: - Private Methods
+
+    private func setupTrimmerView() {
+        trimmerView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            trimmerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            trimmerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            trimmerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            trimmerView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
     }
     
     override func viewDidLayoutSubviews() {

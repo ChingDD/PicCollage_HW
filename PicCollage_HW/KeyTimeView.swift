@@ -12,8 +12,18 @@ protocol KeyTimeViewDelegate:  MusicTrimmerViewDelegate {
 }
 
 class KeyTimeView: UIView {
-    let keytimeBar: UIView = UIView()
-    let selectedRangeView: UIView = UIView()
+    let keytimeBar: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray
+        view.layer.cornerRadius = 8
+        return view
+    }()
+    let selectedRangeView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .yellow
+        view.layer.cornerRadius = 8
+        return view
+    }()
     var keyTimeButtons: [UIButton] = []
     
     // test
@@ -42,21 +52,19 @@ class KeyTimeView: UIView {
     }
     
     // MARK: - Private Methods
-    
+
     private func commonInit() {
         backgroundColor = .black
         layer.cornerRadius = 20
-        setkeytimeBar()
+
+        addSubview(keytimeBar)
+
+        setupKeytimeBar()
         setSelectedRangeView()
         setKeytimeButton()
     }
-    
-    private func setkeytimeBar() {
-        // background color
-        keytimeBar.backgroundColor = .systemGray
-        keytimeBar.layer.cornerRadius = 8
-        addSubview(keytimeBar)
-        // layout
+
+    private func setupKeytimeBar() {
         keytimeBar.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             keytimeBar.heightAnchor.constraint(equalToConstant: 16),
@@ -67,8 +75,6 @@ class KeyTimeView: UIView {
     }
     
     private func setSelectedRangeView() {
-        selectedRangeView.backgroundColor = .yellow
-        selectedRangeView.layer.cornerRadius = 8
         keytimeBar.addSubview(selectedRangeView)
     }
     
