@@ -17,6 +17,7 @@ class WaveformView: UIView {
         view.backgroundColor = .lightGray.withAlphaComponent(0.2)
         view.layer.borderColor = UIColor.systemBlue.cgColor
         view.layer.borderWidth = 3
+        view.isUserInteractionEnabled = false
         return view
     }()
     
