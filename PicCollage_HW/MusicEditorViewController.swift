@@ -21,12 +21,14 @@ class MusicEditorViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private var hasConfiguredWaveform = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(trimmerView)
         setupTrimmerView()
         trimmerView.setDelegate(self)
-        
+
         binding()
     }
 
@@ -45,6 +47,46 @@ class MusicEditorViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         print("viewDidLayoutSubviews")
+
+        // 在第一次 layout 完成後配置波形假資料
+        if !hasConfiguredWaveform {
+            hasConfiguredWaveform = true
+            setupMockWaveformData()
+        }
+    }
+
+    /// 設定假的波形資料用於測試
+    private func setupMockWaveformData() {
+        // 生成 200 個假的振幅資料點，模擬音樂波形
+        let mockAmplitudes = generateMockAmplitudes(count: 200)
+        trimmerView.waveformView.configureWaveform(amplitudes: mockAmplitudes)
+    }
+
+    /// 生成模擬的振幅資料
+    /// - Parameter count: 資料點數量
+    /// - Returns: 振幅陣列，範圍 0.0~1.0
+    private func generateMockAmplitudes(count: Int) -> [CGFloat] {
+        var amplitudes: [CGFloat] = []
+
+        for i in 0..<count {
+            // 使用多種波形組合創造更真實的音樂波形
+            let progress = CGFloat(i) / CGFloat(count)
+
+            // 基礎正弦波
+            let sine = sin(progress * .pi * 8) * 0.3
+
+            // 隨機變化
+            let random = CGFloat.random(in: 0.2...0.8)
+
+            // 包絡線（音樂通常中間較強）
+            let envelope = sin(progress * .pi) * 0.3
+
+            // 組合波形
+            let amplitude = max(0.1, min(1.0, sine + random + envelope))
+            amplitudes.append(amplitude)
+        }
+
+        return amplitudes
     }
     
     func binding() {
