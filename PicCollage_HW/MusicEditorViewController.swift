@@ -52,6 +52,11 @@ class MusicEditorViewController: UIViewController {
             guard let self = self else { return }
             trimmerView.updateUI(viewModel: viewModel)
         }
+        
+        viewModel.isPlaying.bind { [weak self] isPlaying in
+            guard let self = self else { return }
+            trimmerView.updateButtonUI(isPlaying: isPlaying)
+        }
     }
 
     /*
@@ -67,7 +72,14 @@ class MusicEditorViewController: UIViewController {
 }
 
 extension MusicEditorViewController: MusicTrimmerViewDelegate {
+    func playButtonTapped() {
+        print("playButtonTapped")
+        viewModel.togglePlayPause()
+    }
     
+    func resetButtonTapped() {
+        print("resetButtonTapped")
+    }
 }
 
 extension MusicEditorViewController: KeyTimeViewDelegate {

@@ -8,7 +8,8 @@
 import UIKit
 
 protocol MusicTrimmerViewDelegate: AnyObject {
-    
+    func playButtonTapped()
+    func resetButtonTapped()
 }
 
 class MusicTrimmerView: UIView {
@@ -57,6 +58,31 @@ class MusicTrimmerView: UIView {
         return label
     }()
     private let currentTimeIndicator = UIView()
+    private let playPauseButton: UIButton = {
+        let button = UIButton(type: .system)
+        var config = UIButton.Configuration.filled()
+        config.title = "Play"
+        config.baseForegroundColor = .white
+        button.configuration = config
+        return button
+    }()
+    private let ResetButton: UIButton = {
+        let button = UIButton(type: .system)
+        var config = UIButton.Configuration.filled()
+        config.title = "Reset"
+        config.baseForegroundColor = .white
+        config.baseBackgroundColor = .gray
+        button.configuration = config
+        return button
+    }()
+    private let buttonStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 8
+        stackView.distribution = .fillProportionally
+        stackView.alignment = .fill
+        return stackView
+    }()
     
     weak var delegate: MusicTrimmerViewDelegate?
     
@@ -78,23 +104,19 @@ class MusicTrimmerView: UIView {
         sectionTimeLabel.text = viewModel.sectionTimeline
         currentTimeLabel.text = viewModel.currentTimeline
 
-        waveformView.updateScrollViewOffset(start: viewModel.start.value,
-                                            duration: viewModel.state.selectedRange.duration,
-                                            totalDuration: viewModel.state.totalDuration)
+        // Calculate scroll offset through ViewModel, then apply it to View
+        if let offsetX = viewModel.calculateScrollOffset(scrollViewBounds: waveformView.waveScrollView.bounds,
+                                                         contentSize: waveformView.waveScrollView.contentSize,
+                                                         contentInsetLeft: waveformView.waveScrollView.contentInset.left,
+                                                         contentInsetRight: waveformView.waveScrollView.contentInset.right) {
+            waveformView.setScrollOffset(offsetX)
+        }
+
+        updateSelectedRangeViewFillColor(viewModel: viewModel)
     }
 
-    func updateUIWithoutScroll(viewModel: MusicEditorViewModel) {
-        keyTimeView.updateKeytimeViewUI(start: viewModel.start.value,
-                                        keyTimes: viewModel.state.keyTimes,
-                                        totalDuration: viewModel.state.totalDuration)
-        sectionPercentLabel.text = viewModel.sectionPercentage
-        currentPercentLabel.text = viewModel.currentPercentage
-        sectionTimeLabel.text = viewModel.sectionTimeline
-        currentTimeLabel.text = viewModel.currentTimeline
-    }
-    
-    func updateSelectedRangeView(viewModel: MusicEditorViewModel) {
-        
+    func updateSelectedRangeViewFillColor(viewModel: MusicEditorViewModel) {
+        waveformView.updateProgressView(ratio: viewModel.progressRatio)
     }
     
     
@@ -102,6 +124,18 @@ class MusicTrimmerView: UIView {
         self.delegate = delegate
         keyTimeView.delegate = delegate as? KeyTimeViewDelegate
         waveformView.delegate = delegate as? WaveformViewDelegate
+    }
+    
+    func updateButtonUI(isPlaying: Bool) {
+        playPauseButton.setTitle(isPlaying ? "Pause" : "Play", for: .normal)
+    }
+    
+    @objc func playButtonTapped() {
+        delegate?.playButtonTapped()
+    }
+    
+    @objc func resetButtonTapped() {
+        delegate?.resetButtonTapped()
     }
     
     // MARK: - Private Methods
@@ -116,6 +150,9 @@ class MusicTrimmerView: UIView {
         addSubview(sectionTimeLabel)
         addSubview(currentTimeLabel)
         addSubview(waveformView)
+        addSubview(buttonStackView)
+        buttonStackView.addArrangedSubview(playPauseButton)
+        buttonStackView.addArrangedSubview(ResetButton)
 
         setupKeyTimeTitle()
         setupSectionPercentLabel()
@@ -124,6 +161,7 @@ class MusicTrimmerView: UIView {
         setupSectionTimeLabel()
         setupCurrentTimeLabel()
         setupWaveformView()
+        setupButton()
     }
 
     private func setupKeyTimeTitle() {
@@ -182,8 +220,19 @@ class MusicTrimmerView: UIView {
             waveformView.topAnchor.constraint(equalTo: currentTimeLabel.bottomAnchor, constant: 10),
             waveformView.leadingAnchor.constraint(equalTo: leadingAnchor),
             waveformView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            waveformView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
             waveformView.heightAnchor.constraint(equalToConstant: 100)
+        ])
+    }
+    
+    private func setupButton() {
+        playPauseButton.addTarget(self, action: #selector(playButtonTapped), for: .touchUpInside)
+        ResetButton.addTarget(self, action: #selector(resetButtonTapped), for: .touchUpInside)
+        
+        buttonStackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            buttonStackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            buttonStackView.topAnchor.constraint(equalTo: waveformView.bottomAnchor, constant: 10),
+            buttonStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
     }
 }

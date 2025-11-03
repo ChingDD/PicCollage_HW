@@ -7,6 +7,11 @@
 
 import Foundation
 
+struct ScrollParameters {
+    let scrollableWidth: CGFloat
+    let changeableDuration: CGFloat
+}
+
 struct MusicStateModel {
     var totalDuration: CGFloat
     var currentTime: CGFloat
@@ -22,5 +27,13 @@ struct MusicStateModel {
         let newRange = selectedRange.shift(by: by, totalDuration: totalDuration)
         selectedRange = newRange
         currentTime += newRange.start - oldStart
+    }
+    
+    mutating func updateCurrentTime(by interval: CGFloat) {
+        if !(currentTime >= selectedRange.end) {
+            currentTime += interval
+        } else {
+            currentTime = selectedRange.start
+        }
     }
 }

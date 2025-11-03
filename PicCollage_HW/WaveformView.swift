@@ -31,6 +31,14 @@ class WaveformView: UIView {
         return scrollView
     }()
     
+    let progressView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .green
+        return view
+    }()
+    
+    private var progressViewWidthConstraint: NSLayoutConstraint?
+    
     weak var delegate: WaveformViewDelegate? {
         didSet {
             waveScrollView.delegate = delegate
@@ -61,26 +69,13 @@ class WaveformView: UIView {
         )
     }
     
+    func setScrollOffset(_ offsetX: CGFloat) {
+        waveScrollView.contentOffset.x = offsetX
+    }
     
-    func updateScrollViewOffset(start: CGFloat, duration: CGFloat ,totalDuration: CGFloat) {
-        let contentInsetLeft = waveScrollView.contentInset.left
-        let contentInsetRight = waveScrollView.contentInset.right
-        let contentSizeWidth = waveScrollView.contentSize.width
-        let scrollViewWidth = waveScrollView.bounds.width
-
-        // Changeable width
-        let scrollableWidth = contentSizeWidth + contentInsetLeft + contentInsetRight - scrollViewWidth
-
-        // Changeable duration
-        let selectedRangeDuration = duration
-        let changeableDuration = totalDuration - selectedRangeDuration
-
-        guard changeableDuration > 0, scrollableWidth > 0 else { return }
-
-        // Calculate offset（absolute positioning）
-        let targetOffsetX = (start / changeableDuration) * scrollableWidth - contentInsetLeft
-
-        waveScrollView.contentOffset.x = targetOffsetX
+    func updateProgressView(ratio: CGFloat) {
+        let width = selectedRangeView.frame.width * ratio
+        progressViewWidthConstraint?.constant = width
     }
     
     // MARK: - Private Methods
@@ -89,12 +84,14 @@ class WaveformView: UIView {
         backgroundColor = .black
 
         addSubview(waveScrollView)
+        addSubview(progressView)
         addSubview(selectedRangeView)
         waveScrollView.addSubview(waveView)
 
         setupWaveScrollView()
         setupSelectedRangeView()
         setupWaveView()
+        setupProgressView()
     }
 
     private func setupWaveScrollView() {
@@ -124,6 +121,17 @@ class WaveformView: UIView {
             waveView.trailingAnchor.constraint(equalTo: waveScrollView.trailingAnchor),
             waveView.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
             waveView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: (0.5 * 100))    // 100 is Test
+        ])
+    }
+    
+    private func setupProgressView() {
+        progressView.translatesAutoresizingMaskIntoConstraints = false
+        progressViewWidthConstraint = progressView.widthAnchor.constraint(equalToConstant: 0)
+        NSLayoutConstraint.activate([
+            progressView.leadingAnchor.constraint(equalTo: selectedRangeView.leadingAnchor),
+            progressView.topAnchor.constraint(equalTo: selectedRangeView.topAnchor),
+            progressView.heightAnchor.constraint(equalTo: selectedRangeView.heightAnchor, multiplier: 1),
+            progressViewWidthConstraint!
         ])
     }
 }
