@@ -36,4 +36,8 @@ struct MusicStateModel {
             currentTime = selectedRange.start
         }
     }
+
+    mutating func resetCurrentTime() {
+        currentTime = selectedRange.start
+    }
 }

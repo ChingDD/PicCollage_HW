@@ -73,12 +73,11 @@ class MusicEditorViewController: UIViewController {
 
 extension MusicEditorViewController: MusicTrimmerViewDelegate {
     func playButtonTapped() {
-        print("playButtonTapped")
         viewModel.togglePlayPause()
     }
     
     func resetButtonTapped() {
-        print("resetButtonTapped")
+        viewModel.resetToStart()
     }
 }
 

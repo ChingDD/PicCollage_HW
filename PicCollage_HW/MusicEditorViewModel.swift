@@ -113,6 +113,11 @@ class MusicEditorViewModel {
         updateObservables()
     }
 
+    func resetToStart() {
+        state.resetCurrentTime()
+        updateObservables()
+    }
+
     // MARK: - Private Methods
     private func calculateScrollParameters(contentSizeWidth: CGFloat,
                                            scrollViewWidth: CGFloat,
