@@ -25,7 +25,12 @@ class KeyTimeView: UIView {
         return view
     }()
     var keyTimeButtons: [UIButton] = []
-    
+
+    // Auto Layout constraints for dynamic updates
+    private var selectedRangeLeadingConstraint: NSLayoutConstraint?
+    private var selectedRangeWidthConstraint: NSLayoutConstraint?
+    private var buttonCenterXConstraints: [NSLayoutConstraint] = []
+
     // test
     let fakeKeyTimes: [Int] = [10, 30, 50, 60, 75]
     let fakeTotalDuration: Int = 80
@@ -75,6 +80,17 @@ class KeyTimeView: UIView {
     
     private func setSelectedRangeView() {
         keytimeBar.addSubview(selectedRangeView)
+        selectedRangeView.translatesAutoresizingMaskIntoConstraints = false
+
+        selectedRangeLeadingConstraint = selectedRangeView.leadingAnchor.constraint(equalTo: keytimeBar.leadingAnchor, constant: 0)
+        selectedRangeWidthConstraint = selectedRangeView.widthAnchor.constraint(equalToConstant: 0)
+
+        NSLayoutConstraint.activate([
+            selectedRangeView.topAnchor.constraint(equalTo: keytimeBar.topAnchor),
+            selectedRangeView.bottomAnchor.constraint(equalTo: keytimeBar.bottomAnchor),
+            selectedRangeLeadingConstraint!,
+            selectedRangeWidthConstraint!
+        ])
     }
     
     private func setKeytimeButton() {
@@ -82,33 +98,44 @@ class KeyTimeView: UIView {
             let btn = UIButton()
             btn.backgroundColor = .red
             btn.layer.cornerRadius = 10
-            btn.frame = CGRect(x: keytimeBar.frame.minX + (keytimeBar.frame.width / CGFloat(fakeTotalDuration) * CGFloat(time)),
-                               y: keytimeBar.frame.midY - (20 / 2),
-                               width: 20,
-                               height: 20)
             btn.tag = time
+            btn.translatesAutoresizingMaskIntoConstraints = false
             btn.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
             addSubview(btn)
+
+            let centerXConstraint = btn.centerXAnchor.constraint(equalTo: keytimeBar.leadingAnchor, constant: 0)
+            buttonCenterXConstraints.append(centerXConstraint)
+
+            NSLayoutConstraint.activate([
+                btn.widthAnchor.constraint(equalToConstant: 20),
+                btn.heightAnchor.constraint(equalToConstant: 20),
+                btn.centerYAnchor.constraint(equalTo: keytimeBar.centerYAnchor),
+                centerXConstraint
+            ])
+
             keyTimeButtons.append(btn)
         }
     }
     
     private func updateSelectedRangeView(start: CGFloat, totalDuration: CGFloat) {
-        print("updateSelectedRangeView Start: \(start)")
-        selectedRangeView.frame = CGRect(x: keytimeBar.frame.width / CGFloat(fakeTotalDuration) * CGFloat(start),
-                                         y: 0,
-                                         width: (keytimeBar.frame.width / CGFloat(fakeTotalDuration) * 10),
-                                         height: 16)
+        layoutIfNeeded()  // Ensure keytimeBar has a valid width
+
+        let barWidth = keytimeBar.bounds.width
+        let leadingOffset = (barWidth / CGFloat(fakeTotalDuration)) * start
+        let rangeWidth = (barWidth / CGFloat(fakeTotalDuration)) * 10
+
+        selectedRangeLeadingConstraint?.constant = leadingOffset
+        selectedRangeWidthConstraint?.constant = rangeWidth
     }
 
     private func updateKeyTimeButtons(keyTimes: [CGFloat], totalDuration: CGFloat) {
+        layoutIfNeeded()  // Ensure keytimeBar has a valid width
+
+        let barWidth = keytimeBar.bounds.width
         for (idx, btn) in keyTimeButtons.enumerated() {
-            let time = fakeKeyTimes[idx]
-            btn.frame = CGRect(x: keytimeBar.frame.minX + (keytimeBar.frame.width / CGFloat(fakeTotalDuration) * CGFloat(time)),
-                               y: keytimeBar.frame.midY - (20 / 2),
-                               width: 20,
-                               height: 20)
+            let time = btn.tag
+            let centerXOffset = (barWidth / CGFloat(fakeTotalDuration)) * CGFloat(time)
+            buttonCenterXConstraints[idx].constant = centerXOffset
         }
-        print("updatekeyTimeButtons")
     }
 }
