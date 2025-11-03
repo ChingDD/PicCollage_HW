@@ -16,7 +16,7 @@ struct TrimmerRangeModel {
         let newStart = start + offset
         let newEnd = end + offset
         if newStart < 0 {
-            return TrimmerRangeModel(start: 0, end: totalDuration - offset, duration: duration)
+            return TrimmerRangeModel(start: 0, end: duration, duration: duration)
         } else if newEnd > totalDuration {
             return TrimmerRangeModel(start: totalDuration - duration, end: totalDuration, duration: duration)
         } else {
