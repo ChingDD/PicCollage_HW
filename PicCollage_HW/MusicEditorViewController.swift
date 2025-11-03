@@ -52,9 +52,7 @@ class MusicEditorViewController: UIViewController {
     func binding() {
         viewModel.start.bind { [weak self] start in
             guard let self = self else { return }
-            print("bind")
-            // 只更新 KeyTimeView 和 Labels，不更新 scrollView
-            trimmerView.updateUIWithoutScroll(viewModel: viewModel)
+            trimmerView.updateUI(viewModel: viewModel)
         }
     }
 
@@ -76,13 +74,14 @@ extension MusicEditorViewController: MusicTrimmerViewDelegate {
 
 extension MusicEditorViewController: KeyTimeViewDelegate {
     func didTapKeytime(time: Int) {
-        print("didTapKeytime")
         viewModel.shiftTime(to: CGFloat(time))
     }
 }
 
 extension MusicEditorViewController: WaveformViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard scrollView.isDragging else { return }
+
         viewModel.updateTimeFromScrollOffset(
             contentOffsetX: scrollView.contentOffset.x,
             contentInsetLeft: scrollView.contentInset.left,

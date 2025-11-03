@@ -62,17 +62,17 @@ class MusicEditorViewModel {
         // Start from 0
         let adjustedOffset = contentOffsetX + contentInsetLeft
         
-        // Changable width
+        // Changeable width
         let scrollableWidth = contentSizeWidth + contentInsetLeft + contentInsetRight - scrollViewWidth
         
-        // Changable duration
+        // Changeable duration
         let totalDuration = state.totalDuration
         let selectedRangeDuration = state.selectedRange.duration
-        let changableDuration = totalDuration - selectedRangeDuration
+        let changeableDuration = totalDuration - selectedRangeDuration
 
         guard scrollableWidth > 0 else { return }
         
-        let currentStart = adjustedOffset / scrollableWidth * changableDuration
+        let currentStart = adjustedOffset / scrollableWidth * changeableDuration
 
         shiftTime(to: currentStart)
     }

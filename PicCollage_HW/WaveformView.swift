@@ -68,18 +68,17 @@ class WaveformView: UIView {
         let contentSizeWidth = waveScrollView.contentSize.width
         let scrollViewWidth = waveScrollView.bounds.width
 
-        // Changable width
+        // Changeable width
         let scrollableWidth = contentSizeWidth + contentInsetLeft + contentInsetRight - scrollViewWidth
 
-        // Changable duration
+        // Changeable duration
         let selectedRangeDuration = duration
-        let changableDuration = totalDuration - selectedRangeDuration
+        let changeableDuration = totalDuration - selectedRangeDuration
 
-        guard changableDuration > 0, scrollableWidth > 0 else { return }
-        
-        print("updateScrollViewOffset changableDuration: \(changableDuration), scrollableWidth: \(scrollableWidth)")
-        // 計算目標 offset（絕對位置）
-        let targetOffsetX = (start / changableDuration) * scrollableWidth - contentInsetLeft
+        guard changeableDuration > 0, scrollableWidth > 0 else { return }
+
+        // Calculate offset（absolute positioning）
+        let targetOffsetX = (start / changeableDuration) * scrollableWidth - contentInsetLeft
 
         waveScrollView.contentOffset.x = targetOffsetX
     }

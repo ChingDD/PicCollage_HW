@@ -43,7 +43,7 @@ class KeyTimeView: UIView {
     
     func updateKeytimeViewUI(start: CGFloat, keyTimes: [CGFloat], totalDuration: CGFloat) {
         updateSelectedRangeView(start: start, totalDuration: totalDuration)
-        updatekeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
+        updateKeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
     }
     
     @objc func didTapButton(button: UIButton) {
@@ -101,7 +101,7 @@ class KeyTimeView: UIView {
                                          height: 16)
     }
 
-    private func updatekeyTimeButtons(keyTimes: [CGFloat], totalDuration: CGFloat) {
+    private func updateKeyTimeButtons(keyTimes: [CGFloat], totalDuration: CGFloat) {
         for (idx, btn) in keyTimeButtons.enumerated() {
             let time = fakeKeyTimes[idx]
             btn.frame = CGRect(x: keytimeBar.frame.minX + (keytimeBar.frame.width / CGFloat(fakeTotalDuration) * CGFloat(time)),
