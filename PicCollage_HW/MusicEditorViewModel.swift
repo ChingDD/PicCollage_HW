@@ -46,6 +46,12 @@ class MusicEditorViewModel {
         return (currentTime - state.selectedRange.start) / duration
     }
 
+    var durationRatio: CGFloat {
+        let duration = state.selectedRange.duration
+        let totalDuration = state.totalDuration
+        return (totalDuration / duration)
+    }
+
     init(state: MusicStateModel, playbackManager: PlaybackManager = PlaybackManager()) {
         self.state = state
         self.playbackManager = playbackManager

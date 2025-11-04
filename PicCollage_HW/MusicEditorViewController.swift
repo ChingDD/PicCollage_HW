@@ -45,6 +45,7 @@ class MusicEditorViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         print("viewDidLayoutSubviews")
+        trimmerView.updateUI(viewModel: viewModel)
     }
     
     func binding() {

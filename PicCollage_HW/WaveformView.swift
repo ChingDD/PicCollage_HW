@@ -34,11 +34,13 @@ class WaveformView: UIView {
     let progressView: UIView = {
         let view = UIView()
         view.backgroundColor = .green
+        view.isUserInteractionEnabled = false
         return view
     }()
     
     private var progressViewWidthConstraint: NSLayoutConstraint?
-    
+    private var waveViewWidthConstraint: NSLayoutConstraint?
+
     weak var delegate: WaveformViewDelegate? {
         didSet {
             waveScrollView.delegate = delegate
@@ -74,10 +76,19 @@ class WaveformView: UIView {
     }
     
     func updateProgressView(ratio: CGFloat) {
+        layoutIfNeeded()
+
         let width = selectedRangeView.frame.width * ratio
         progressViewWidthConstraint?.constant = width
     }
-    
+
+    func updateWaveformContentSizeWidth(durationRatio: CGFloat) {
+        layoutIfNeeded()
+
+        let width = selectedRangeView.frame.width * durationRatio
+        waveViewWidthConstraint?.constant = width
+    }
+
     // MARK: - Private Methods
 
     private func commonInit() {
@@ -116,11 +127,12 @@ class WaveformView: UIView {
 
     private func setupWaveView() {
         waveView.translatesAutoresizingMaskIntoConstraints = false
+        waveViewWidthConstraint = waveView.widthAnchor.constraint(equalToConstant: 0)
         NSLayoutConstraint.activate([
             waveView.leadingAnchor.constraint(equalTo: waveScrollView.leadingAnchor),
             waveView.trailingAnchor.constraint(equalTo: waveScrollView.trailingAnchor),
             waveView.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
-            waveView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: (0.5 * 100))    // 100 is Test
+            waveViewWidthConstraint!
         ])
     }
     

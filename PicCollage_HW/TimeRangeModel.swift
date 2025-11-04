@@ -9,18 +9,20 @@ import Foundation
 
 struct TrimmerRangeModel {
     var start: CGFloat
-    var end: CGFloat
+    var end: CGFloat {
+        start + duration
+    }
     var duration: CGFloat = 10
 
     func shift(by offset: CGFloat, totalDuration: CGFloat) -> TrimmerRangeModel {
         let newStart = start + offset
         let newEnd = end + offset
         if newStart < 0 {
-            return TrimmerRangeModel(start: 0, end: duration, duration: duration)
+            return TrimmerRangeModel(start: 0, duration: duration)
         } else if newEnd > totalDuration {
-            return TrimmerRangeModel(start: totalDuration - duration, end: totalDuration, duration: duration)
+            return TrimmerRangeModel(start: totalDuration - duration, duration: duration)
         } else {
-            return TrimmerRangeModel(start: newStart, end: newEnd, duration: duration)
+            return TrimmerRangeModel(start: newStart, duration: duration)
         }
     }
 }

@@ -33,8 +33,7 @@ class KeyTimeView: UIView {
 
     // test
     let fakeKeyTimes: [Int] = [10, 30, 50, 60, 75]
-    let fakeTotalDuration: Int = 80
-    
+
     weak var delegate: KeyTimeViewDelegate?
     
     init() {
@@ -46,8 +45,8 @@ class KeyTimeView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateKeytimeViewUI(start: CGFloat, keyTimes: [CGFloat], totalDuration: CGFloat) {
-        updateSelectedRangeView(start: start, totalDuration: totalDuration)
+    func updateKeytimeViewUI(start: CGFloat, keyTimes: [CGFloat], totalDuration: CGFloat, duration: CGFloat) {
+        updateSelectedRangeView(start: start, totalDuration: totalDuration, duration: duration)
         updateKeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
     }
     
@@ -117,12 +116,12 @@ class KeyTimeView: UIView {
         }
     }
     
-    private func updateSelectedRangeView(start: CGFloat, totalDuration: CGFloat) {
+    private func updateSelectedRangeView(start: CGFloat, totalDuration: CGFloat, duration: CGFloat) {
         layoutIfNeeded()  // Ensure keytimeBar has a valid width
 
         let barWidth = keytimeBar.bounds.width
-        let leadingOffset = (barWidth / CGFloat(fakeTotalDuration)) * start
-        let rangeWidth = (barWidth / CGFloat(fakeTotalDuration)) * 10
+        let leadingOffset = (barWidth / CGFloat(totalDuration)) * start
+        let rangeWidth = (barWidth / CGFloat(totalDuration)) * duration
 
         selectedRangeLeadingConstraint?.constant = leadingOffset
         selectedRangeWidthConstraint?.constant = rangeWidth
@@ -134,7 +133,7 @@ class KeyTimeView: UIView {
         let barWidth = keytimeBar.bounds.width
         for (idx, btn) in keyTimeButtons.enumerated() {
             let time = btn.tag
-            let centerXOffset = (barWidth / CGFloat(fakeTotalDuration)) * CGFloat(time)
+            let centerXOffset = (barWidth / CGFloat(totalDuration)) * CGFloat(time)
             buttonCenterXConstraints[idx].constant = centerXOffset
         }
     }

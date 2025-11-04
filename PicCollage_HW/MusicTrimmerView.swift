@@ -98,28 +98,15 @@ class MusicTrimmerView: UIView {
     func updateUI(viewModel: MusicEditorViewModel) {
         keyTimeView.updateKeytimeViewUI(start: viewModel.start.value,
                                         keyTimes: viewModel.state.keyTimes,
-                                        totalDuration: viewModel.state.totalDuration)
+                                        totalDuration: viewModel.state.totalDuration,
+                                        duration: viewModel.state.selectedRange.duration)
         sectionPercentLabel.text = viewModel.sectionPercentage
         currentPercentLabel.text = viewModel.currentPercentage
         sectionTimeLabel.text = viewModel.sectionTimeline
         currentTimeLabel.text = viewModel.currentTimeline
-
-        // Calculate scroll offset through ViewModel, then apply it to View
-        if let offsetX = viewModel.calculateScrollOffset(scrollViewBounds: waveformView.waveScrollView.bounds,
-                                                         contentSize: waveformView.waveScrollView.contentSize,
-                                                         contentInsetLeft: waveformView.waveScrollView.contentInset.left,
-                                                         contentInsetRight: waveformView.waveScrollView.contentInset.right) {
-            waveformView.setScrollOffset(offsetX)
-        }
-
-        updateSelectedRangeViewFillColor(viewModel: viewModel)
+        updateWaveformUI(viewModel: viewModel)
     }
 
-    func updateSelectedRangeViewFillColor(viewModel: MusicEditorViewModel) {
-        waveformView.updateProgressView(ratio: viewModel.progressRatio)
-    }
-    
-    
     func setDelegate(_ delegate: MusicTrimmerViewDelegate?) {
         self.delegate = delegate
         keyTimeView.delegate = delegate as? KeyTimeViewDelegate
@@ -234,5 +221,17 @@ class MusicTrimmerView: UIView {
             buttonStackView.topAnchor.constraint(equalTo: waveformView.bottomAnchor, constant: 10),
             buttonStackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10)
         ])
+    }
+
+    private func updateWaveformUI(viewModel: MusicEditorViewModel) {
+        waveformView.updateWaveformContentSizeWidth(durationRatio: viewModel.durationRatio)
+        waveformView.updateProgressView(ratio: viewModel.progressRatio)
+        // Calculate scroll offset through ViewModel, then apply it to View
+        if let offsetX = viewModel.calculateScrollOffset(scrollViewBounds: waveformView.waveScrollView.bounds,
+                                                         contentSize: waveformView.waveScrollView.contentSize,
+                                                         contentInsetLeft: waveformView.waveScrollView.contentInset.left,
+                                                         contentInsetRight: waveformView.waveScrollView.contentInset.right) {
+            waveformView.setScrollOffset(offsetX)
+        }
     }
 }
