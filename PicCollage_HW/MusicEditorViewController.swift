@@ -43,7 +43,7 @@ class MusicEditorViewController: UIViewController {
         // UI Setting
         setupTrimmerView()
         trimmerView.setupkeyTimeButton(keyTimes: viewModel.state.keyTimes)
-        trimmerView.setDelegate(self)
+        trimmerView.setDelegates(musicTrimmer: self, keyTime: self, waveform: self)
         setupSettingButton()
         
         // Add target action

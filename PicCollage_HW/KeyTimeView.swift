@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol KeyTimeViewDelegate: MusicTrimmerViewDelegate {
+protocol KeyTimeViewDelegate: AnyObject {
     func didTapKeytime(time: Int)
 }
 

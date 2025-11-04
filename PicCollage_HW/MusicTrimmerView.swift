@@ -86,8 +86,18 @@ class MusicTrimmerView: UIView {
     
     private var lastWidth: CGFloat = 0
     var onWidthChanged: ((CGFloat) -> Void)?
-    
-    weak var delegate: MusicTrimmerViewDelegate?
+
+    weak var musicTrimmerDelegate: MusicTrimmerViewDelegate?
+    weak var keyTimeDelegate: KeyTimeViewDelegate? {
+        didSet {
+            keyTimeView.delegate = keyTimeDelegate
+        }
+    }
+    weak var waveformDelegate: WaveformViewDelegate? {
+        didSet {
+            waveformView.delegate = waveformDelegate
+        }
+    }
     
     init() {
         super.init(frame: .zero)
@@ -119,10 +129,12 @@ class MusicTrimmerView: UIView {
         updateWaveformUI(viewModel: viewModel)
     }
 
-    func setDelegate(_ delegate: MusicTrimmerViewDelegate?) {
-        self.delegate = delegate
-        keyTimeView.delegate = delegate as? KeyTimeViewDelegate
-        waveformView.delegate = delegate as? WaveformViewDelegate
+    func setDelegates(musicTrimmer: MusicTrimmerViewDelegate?,
+                      keyTime: KeyTimeViewDelegate?,
+                      waveform: WaveformViewDelegate?) {
+        self.musicTrimmerDelegate = musicTrimmer
+        self.keyTimeDelegate = keyTime
+        self.waveformDelegate = waveform
     }
     
     func updateButtonUI(isPlaying: Bool) {
@@ -134,11 +146,11 @@ class MusicTrimmerView: UIView {
     }
     
     @objc func playButtonTapped() {
-        delegate?.playButtonTapped()
+        musicTrimmerDelegate?.playButtonTapped()
     }
-    
+
     @objc func resetButtonTapped() {
-        delegate?.resetButtonTapped()
+        musicTrimmerDelegate?.resetButtonTapped()
     }
     
     // MARK: - Private Methods

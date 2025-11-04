@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol WaveformViewDelegate: MusicTrimmerViewDelegate, UIScrollViewDelegate {}
+protocol WaveformViewDelegate: AnyObject, UIScrollViewDelegate {}
 
 class WaveformView: UIView {
     let selectedRangeView: UIView = {
