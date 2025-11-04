@@ -134,6 +134,35 @@ class MusicEditorViewModel {
         updateObservables()
     }
 
+    // MARK: - Settings Management
+
+    // Get current settings as MusicEditorSettings model
+    func getCurrentSettings() -> MusicEditorSettings {
+        return MusicEditorSettings(
+            totalDuration: state.totalDuration,
+            keyTimes: state.keyTimes,
+            selectedRangeDuration: state.selectedRange.duration
+        )
+    }
+
+    // Apply validated settings to the state
+    // Parameter settings: The settings object containing user input
+    // Throws: ValidationError if settings are invalid
+    func applySettings(_ settings: MusicEditorSettings) throws {
+        // Validate settings first
+        try settings.validate()
+
+        // Apply to state
+        state.updateTotalDurarion(value: settings.totalDuration)
+        state.updateKeyTimes(settings.keyTimes)
+
+        if let duration = settings.timelineDuration {
+            state.updateSelectedRangeDuration(duration)
+        }
+
+        updateObservables()
+    }
+
     // MARK: - Private Methods
     private func calculateScrollParameters(contentSizeWidth: CGFloat,
                                            scrollViewWidth: CGFloat,

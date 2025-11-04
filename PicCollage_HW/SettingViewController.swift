@@ -102,8 +102,12 @@ class SettingViewController: UIViewController {
         return button
     }()
 
-    // MARK: - Local State
-    private var keyTimePercentages: [Double] = []
+    // MARK: - Constants
+    private enum UIConstants {
+        static let textFieldHeight: CGFloat = 44
+        static let deleteButtonWidth: CGFloat = 70
+        static let buttonSpacing: CGFloat = 12
+    }
 
     // MARK: - Initialization
     init(viewModel: MusicEditorViewModel) {
@@ -245,20 +249,20 @@ class SettingViewController: UIViewController {
     }
 
     private func loadCurrentSettings() {
-        let state = viewModel.state
+        let settings = viewModel.getCurrentSettings()
 
         // Load total duration
-        totalDurationTextField.text = String(format: "%.1f", state.totalDuration)
+        totalDurationTextField.text = String(format: "%.1f", settings.totalDuration)
 
         // Load keyTimes as percentages
-        keyTimePercentages = state.keyTimes.map { ($0 / state.totalDuration) * 100.0 }
-        for percentage in keyTimePercentages {
+        for percentage in settings.keyTimePercentages {
             addKeyTimeRow(percentage: percentage)
         }
 
         // Load timeline length (selectedRange duration) as percentage
-        let timelinePercentage = (state.selectedRange.duration / state.totalDuration) * 100
-        timelineLengthTextField.text = String(format: "%.1f", timelinePercentage)
+        if let timelinePercentage = settings.timelineLengthPercentage {
+            timelineLengthTextField.text = String(format: "%.1f", timelinePercentage)
+        }
     }
 
     private func setupActions() {
@@ -298,14 +302,14 @@ class SettingViewController: UIViewController {
         NSLayoutConstraint.activate([
             textField.leadingAnchor.constraint(equalTo: rowContainer.leadingAnchor),
             textField.centerYAnchor.constraint(equalTo: rowContainer.centerYAnchor),
-            textField.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -12),
-            textField.heightAnchor.constraint(equalToConstant: 44),
+            textField.trailingAnchor.constraint(equalTo: deleteButton.leadingAnchor, constant: -UIConstants.buttonSpacing),
+            textField.heightAnchor.constraint(equalToConstant: UIConstants.textFieldHeight),
 
             deleteButton.trailingAnchor.constraint(equalTo: rowContainer.trailingAnchor),
             deleteButton.centerYAnchor.constraint(equalTo: rowContainer.centerYAnchor),
-            deleteButton.widthAnchor.constraint(equalToConstant: 70),
+            deleteButton.widthAnchor.constraint(equalToConstant: UIConstants.deleteButtonWidth),
 
-            rowContainer.heightAnchor.constraint(equalToConstant: 44)
+            rowContainer.heightAnchor.constraint(equalToConstant: UIConstants.textFieldHeight)
         ])
 
         keyTimesStackView.addArrangedSubview(rowContainer)
@@ -333,54 +337,65 @@ class SettingViewController: UIViewController {
     @objc private func saveButtonTapped() {
         dismissKeyboard()
 
-        // Validate and save total duration
+        do {
+            let settings = try collectInputData()
+            try viewModel.applySettings(settings)
+            showAlert(message: "Settings saved successfully!", title: "Success")
+        } catch let error as SettingsValidator.ValidationError {
+            showAlert(message: error.localizedDescription)
+        } catch {
+            showAlert(message: "An unexpected error occurred")
+        }
+    }
+
+    // MARK: - Data Collection
+    private func collectInputData() throws -> MusicEditorSettings {
+        // Collect total duration
         guard let totalDurationText = totalDurationTextField.text,
-              let totalDuration = Double(totalDurationText),
-              totalDuration > 0 else {
-            showAlert(message: "Please enter a valid total track length (must be > 0)")
-            return
+              let totalDuration = Double(totalDurationText) else {
+            throw SettingsValidator.ValidationError.invalidTotalDuration
         }
 
-        // Collect and validate keyTime percentages
-        var keyTimePercentages: [CGFloat] = []
-        for view in keyTimesStackView.arrangedSubviews {
-            if let rowContainer = view as? UIView,
-               let textField = rowContainer.subviews.first(where: { $0 is UITextField }) as? UITextField,
-               let text = textField.text,
-               !text.isEmpty,
-               let percentage = Double(text) {
-                if percentage < 0 || percentage > 100 {
-                    showAlert(message: "KeyTime percentages must be between 0 and 100")
-                    return
-                }
-                keyTimePercentages.append(percentage)
+        // Collect keyTime percentages
+        let keyTimePercentages = try collectKeyTimePercentages()
+
+        // Collect timeline length percentage (optional)
+        let timelinePercentage = collectTimelinePercentage()
+
+        return MusicEditorSettings(
+            totalDuration: CGFloat(totalDuration),
+            keyTimePercentages: keyTimePercentages,
+            timelineLengthPercentage: timelinePercentage
+        )
+    }
+
+    private func collectKeyTimePercentages() throws -> [CGFloat] {
+        var percentages: [CGFloat] = []
+
+        for rowContainer in keyTimesStackView.arrangedSubviews {
+            guard let textField = rowContainer.subviews.first(where: { $0 is UITextField }) as? UITextField,
+                  let text = textField.text,
+                  !text.isEmpty else {
+                continue
             }
-        }
 
-        // Convert percentages to absolute times
-        let keyTimes = keyTimePercentages.map { ($0 / 100) * CGFloat(totalDuration) }
-
-        // Validate and save timeline length (optional)
-        var timelineDuration: CGFloat?
-        if let timelineLengthText = timelineLengthTextField.text,
-           !timelineLengthText.isEmpty,
-           let percentage = Double(timelineLengthText) {
-            if percentage <= 0 || percentage > 100 {
-                showAlert(message: "Timeline length percentage must be between 0 and 100")
-                return
+            guard let percentage = Double(text) else {
+                throw SettingsValidator.ValidationError.invalidKeyTimePercentage
             }
-            timelineDuration = (CGFloat(percentage) / 100) * CGFloat(totalDuration)
+
+            percentages.append(CGFloat(percentage))
         }
 
-        // Apply changes to ViewModel
-        viewModel.updateTotalDuration(CGFloat(totalDuration))
-        viewModel.updateKeyTimes(keyTimes)
+        return percentages
+    }
 
-        if let duration = timelineDuration {
-            viewModel.updateSelectedRangeDuration(duration)
+    private func collectTimelinePercentage() -> CGFloat? {
+        guard let text = timelineLengthTextField.text,
+              !text.isEmpty,
+              let percentage = Double(text) else {
+            return nil
         }
-
-        showAlert(message: "Settings saved successfully!", title: "Success")
+        return CGFloat(percentage)
     }
 
     @objc private func backButtonTapped() {
