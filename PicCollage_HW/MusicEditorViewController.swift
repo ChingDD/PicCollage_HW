@@ -45,7 +45,6 @@ class MusicEditorViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         print("viewDidLayoutSubviews")
-        trimmerView.updateUI(viewModel: viewModel)
     }
     
     func binding() {
@@ -57,6 +56,11 @@ class MusicEditorViewController: UIViewController {
         viewModel.isPlaying.bind { [weak self] isPlaying in
             guard let self = self else { return }
             trimmerView.updateButtonUI(isPlaying: isPlaying)
+        }
+        
+        trimmerView.onWidthChanged = { [weak self] _ in
+            guard let self = self else { return }
+            trimmerView.updateUI(viewModel: viewModel)
         }
     }
 
