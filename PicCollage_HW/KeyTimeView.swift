@@ -31,9 +31,6 @@ class KeyTimeView: UIView {
     private var selectedRangeWidthConstraint: NSLayoutConstraint?
     private var buttonCenterXConstraints: [NSLayoutConstraint] = []
 
-    // test
-    let fakeKeyTimes: [Int] = [10, 30, 50, 60, 75]
-
     weak var delegate: KeyTimeViewDelegate?
     
     init() {
@@ -50,6 +47,16 @@ class KeyTimeView: UIView {
         updateKeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
     }
     
+    func setupKeyTimes(_ keyTimes: [CGFloat]) {
+        // Clear existing buttons
+        keyTimeButtons.forEach { $0.removeFromSuperview() }
+        keyTimeButtons.removeAll()
+        buttonCenterXConstraints.removeAll()
+
+        // Create new buttons with the provided keyTimes
+        setKeytimeButton(keyTimes: keyTimes)
+    }
+    
     @objc func didTapButton(button: UIButton) {
         delegate?.didTapKeytime(time: button.tag)
     }
@@ -64,7 +71,6 @@ class KeyTimeView: UIView {
 
         setupKeytimeBar()
         setSelectedRangeView()
-        setKeytimeButton()
     }
 
     private func setupKeytimeBar() {
@@ -92,12 +98,12 @@ class KeyTimeView: UIView {
         ])
     }
     
-    private func setKeytimeButton() {
-        for time in fakeKeyTimes {
+    private func setKeytimeButton(keyTimes: [CGFloat]) {
+        for time in keyTimes {
             let btn = UIButton()
             btn.backgroundColor = .red
             btn.layer.cornerRadius = 10
-            btn.tag = time
+            btn.tag = Int(time)
             btn.translatesAutoresizingMaskIntoConstraints = false
             btn.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
             addSubview(btn)

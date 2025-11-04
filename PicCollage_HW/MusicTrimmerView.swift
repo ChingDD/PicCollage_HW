@@ -129,6 +129,10 @@ class MusicTrimmerView: UIView {
         playPauseButton.setTitle(isPlaying ? "Pause" : "Play", for: .normal)
     }
     
+    func setupkeyTimeButton(keyTimes: [CGFloat]) {
+        keyTimeView.setupKeyTimes(keyTimes)
+    }
+    
     @objc func playButtonTapped() {
         delegate?.playButtonTapped()
     }

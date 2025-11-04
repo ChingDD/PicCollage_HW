@@ -20,7 +20,13 @@ class MainCoordinator: Coordinator {
     var navigationController: UINavigationController = UINavigationController()
     
     func startCoordinator() {
-        let initViewController = MusicEditorViewController(viewModel: MusicEditorViewModel(state: MusicStateModel(totalDuration: 80.0, currentTime: 0.0, keyTimes: [], selectedRange: TrimmerRangeModel(start: 0.0))))
+        let trimmerRangeModel = TrimmerRangeModel(start: 0.0)
+        let musicStateModel = MusicStateModel(totalDuration: 80.0,
+                                              currentTime: 0.0,
+                                              keyTimes: [10, 30, 50, 60, 75],
+                                              selectedRange: trimmerRangeModel)
+        let viewModel = MusicEditorViewModel(state: musicStateModel)
+        let initViewController = MusicEditorViewController(viewModel: viewModel)
         navigationController.pushViewController(initViewController, animated: false)
     }
     

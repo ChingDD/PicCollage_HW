@@ -25,6 +25,7 @@ class MusicEditorViewController: UIViewController {
         super.viewDidLoad()
         view.addSubview(trimmerView)
         setupTrimmerView()
+        trimmerView.setupkeyTimeButton(keyTimes: viewModel.state.keyTimes)
         trimmerView.setDelegate(self)
         
         binding()
