@@ -124,6 +124,16 @@ class MusicEditorViewModel {
         updateObservables()
     }
 
+    func updateKeyTimes(_ keyTimes: [CGFloat]) {
+        state.updateKeyTimes(keyTimes)
+        updateObservables()
+    }
+
+    func updateSelectedRangeDuration(_ duration: CGFloat) {
+        state.updateSelectedRangeDuration(duration)
+        updateObservables()
+    }
+
     // MARK: - Private Methods
     private func calculateScrollParameters(contentSizeWidth: CGFloat,
                                            scrollViewWidth: CGFloat,

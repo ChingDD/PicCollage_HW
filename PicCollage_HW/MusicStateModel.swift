@@ -40,4 +40,18 @@ struct MusicStateModel {
     mutating func resetCurrentTime() {
         currentTime = selectedRange.start
     }
+
+    mutating func updateKeyTimes(_ newKeyTimes: [CGFloat]) {
+        keyTimes = newKeyTimes
+    }
+
+    mutating func updateSelectedRangeDuration(_ duration: CGFloat) {
+        selectedRange.duration = duration
+        // Ensure current time stays within bounds
+        if currentTime < selectedRange.start {
+            currentTime = selectedRange.start
+        } else if currentTime > selectedRange.end {
+            currentTime = selectedRange.end
+        }
+    }
 }

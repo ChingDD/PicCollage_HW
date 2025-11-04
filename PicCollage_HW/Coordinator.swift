@@ -7,12 +7,11 @@
 
 import UIKit
 
-protocol Coordinator {
+protocol Coordinator: AnyObject {
     var childCoordinators: [Coordinator] { get set }
     var navigationController: UINavigationController { get set }
     func startCoordinator()
-    func push()
-    
+    func back()
 }
 
 class MainCoordinator: Coordinator {
@@ -27,11 +26,25 @@ class MainCoordinator: Coordinator {
                                               selectedRange: trimmerRangeModel)
         let viewModel = MusicEditorViewModel(state: musicStateModel)
         let initViewController = MusicEditorViewController(viewModel: viewModel)
+        initViewController.coordinator = self
         navigationController.pushViewController(initViewController, animated: false)
     }
     
-    func push() {
-        
+    func toSettingPage(viewModel:MusicEditorViewModel ) {
+        let settingPage = SettingViewController(viewModel: viewModel)
+        settingPage.coordinator = self
+        settingPage.navigationItem.setHidesBackButton(true, animated: false)
+        navigationController.pushViewController(settingPage, animated: true)
+    }
+    
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        navigationController.present(alert, animated: true)
+    }
+    
+    func back() {
+        navigationController.popViewController(animated: true)
     }
     
     

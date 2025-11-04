@@ -11,7 +11,20 @@ class MusicEditorViewController: UIViewController {
     let viewModel: MusicEditorViewModel
     
     let trimmerView: MusicTrimmerView = MusicTrimmerView()
+
+    let settingPageButton: UIButton = {
+        let button = UIButton(type: .system)
+        var config = UIButton.Configuration.filled()
+        config.baseForegroundColor = .black
+        config.baseBackgroundColor = .white
+        config.title = "Setting"
+        button.configuration = config
+        return button
+    }()
+
+    weak var coordinator: MainCoordinator?
     
+    // MARK: - Initialization
     init(viewModel: MusicEditorViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -21,18 +34,37 @@ class MusicEditorViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - LifeCycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(trimmerView)
+        view.addSubview(settingPageButton)
+        
+        // UI Setting
         setupTrimmerView()
         trimmerView.setupkeyTimeButton(keyTimes: viewModel.state.keyTimes)
         trimmerView.setDelegate(self)
+        setupSettingButton()
         
+        // Add target action
+        settingPageButton.addTarget(self, action: #selector(didTapSettingButton), for: .touchUpInside)
+        
+        // Binding
         binding()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        trimmerView.setupkeyTimeButton(keyTimes: viewModel.state.keyTimes)
+        trimmerView.updateUI(viewModel: viewModel)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        print("viewDidLayoutSubviews")
     }
 
     // MARK: - Private Methods
-
     private func setupTrimmerView() {
         trimmerView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -43,9 +75,12 @@ class MusicEditorViewController: UIViewController {
         ])
     }
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        print("viewDidLayoutSubviews")
+    private func setupSettingButton() {
+        settingPageButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            settingPageButton.safeAreaLayoutGuide.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            settingPageButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+        ])
     }
     
     func binding() {
@@ -63,6 +98,10 @@ class MusicEditorViewController: UIViewController {
             guard let self = self else { return }
             trimmerView.updateUI(viewModel: viewModel)
         }
+    }
+    
+    @objc func didTapSettingButton() {
+        coordinator?.toSettingPage(viewModel: viewModel)
     }
 
     /*
