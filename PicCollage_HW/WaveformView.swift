@@ -20,8 +20,6 @@ class WaveformView: UIView {
     let selectedRangeView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(red: 153/255, green: 152/255, blue: 156/255, alpha: 1)
-        view.layer.borderColor = UIColor.systemBlue.cgColor
-        view.layer.borderWidth = UIConstants.selectedRangeViewBorderWidth
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -34,6 +32,7 @@ class WaveformView: UIView {
     let waveScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isScrollEnabled = true
+        scrollView.showsHorizontalScrollIndicator = false
         return scrollView
     }()
     
@@ -46,6 +45,7 @@ class WaveformView: UIView {
     
     private var progressViewWidthConstraint: NSLayoutConstraint?
     private var waveformCanvasWidthConstraint: NSLayoutConstraint?
+    private var gradientBorderLayer: CAGradientLayer?
 
     weak var delegate: WaveformViewDelegate? {
         didSet {
@@ -64,17 +64,11 @@ class WaveformView: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        // Setup scrollView Offset
+        setupScrollViewOffset()
 
-        // Set contentInset so that the edges of waveformCanvas align with the edges of selectedRangeView
-        // Since selectedRangeView is centered and its width is 50%, leave 25% space on each side
-        let insetHorizontal = bounds.width * UIConstants.contentInsetRatio
-
-        waveScrollView.contentInset = UIEdgeInsets(
-            top: 0,
-            left: insetHorizontal,
-            bottom: 0,
-            right: insetHorizontal
-        )
+        // Setup gradient border for selectedRangeView
+        setupGradientBorder()
     }
     
     func setScrollOffset(_ offsetX: CGFloat) {
@@ -161,5 +155,51 @@ class WaveformView: UIView {
                                                  constant: -(UIConstants.selectedRangeViewBorderWidth)),
             progressViewWidthConstraint!
         ])
+    }
+    
+    private func setupGradientBorder() {
+        // Remove old gradient layer if exists
+        gradientBorderLayer?.removeFromSuperlayer()
+
+        let borderWidth = UIConstants.selectedRangeViewBorderWidth
+
+        // Create gradient layer
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = selectedRangeView.bounds
+        gradientLayer.colors = [
+            UIColor.orange.cgColor,
+            UIColor.purple.cgColor
+        ]
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)  // Left center
+        gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)    // Right center
+
+        // Create border mask (shows only the border area)
+        let maskLayer = CAShapeLayer()
+        let outerPath = UIBezierPath(rect: selectedRangeView.bounds)
+        let innerPath = UIBezierPath(rect: selectedRangeView.bounds.insetBy(dx: borderWidth, dy: borderWidth))
+        outerPath.append(innerPath)
+        outerPath.usesEvenOddFillRule = true
+
+        maskLayer.path = outerPath.cgPath
+        maskLayer.fillRule = .evenOdd
+
+        gradientLayer.mask = maskLayer
+
+        // Insert gradient layer at the bottom so it doesn't cover other subviews
+        selectedRangeView.layer.insertSublayer(gradientLayer, at: 0)
+        gradientBorderLayer = gradientLayer
+    }
+    
+    private func setupScrollViewOffset() {
+        // Set contentInset so that the edges of waveformCanvas align with the edges of selectedRangeView
+        // Since selectedRangeView is centered and its width is 50%, leave 25% space on each side
+        let insetHorizontal = bounds.width * UIConstants.contentInsetRatio
+
+        waveScrollView.contentInset = UIEdgeInsets(
+            top: 0,
+            left: insetHorizontal,
+            bottom: 0,
+            right: insetHorizontal
+        )
     }
 }
