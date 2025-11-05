@@ -6,7 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FC2736ED2EBBC903001D9952 /* WaveformBarState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2736EC2EBBC903001D9952 /* WaveformBarState.swift */; };
+		FC2736F02EBBC95B001D9952 /* WaveformViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2736EF2EBBC95B001D9952 /* WaveformViewModel.swift */; };
+		FC2736F22EBBC9CC001D9952 /* WaveformBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2736F12EBBC9CC001D9952 /* WaveformBar.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		FC2736EC2EBBC903001D9952 /* WaveformBarState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformBarState.swift; sourceTree = "<group>"; };
+		FC2736EF2EBBC95B001D9952 /* WaveformViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformViewModel.swift; sourceTree = "<group>"; };
+		FC2736F12EBBC9CC001D9952 /* WaveformBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaveformBar.swift; sourceTree = "<group>"; };
 		FCB8E6DE2EB253D800573797 /* PicCollage_HW.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PicCollage_HW.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -45,6 +54,9 @@
 		FCB8E6D52EB253D800573797 = {
 			isa = PBXGroup;
 			children = (
+				FC2736EF2EBBC95B001D9952 /* WaveformViewModel.swift */,
+				FC2736F12EBBC9CC001D9952 /* WaveformBar.swift */,
+				FC2736EC2EBBC903001D9952 /* WaveformBarState.swift */,
 				FCB8E6E02EB253D800573797 /* PicCollage_HW */,
 				FCB8E6DF2EB253D800573797 /* Products */,
 			);
@@ -132,6 +144,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FC2736F02EBBC95B001D9952 /* WaveformViewModel.swift in Sources */,
+				FC2736ED2EBBC903001D9952 /* WaveformBarState.swift in Sources */,
+				FC2736F22EBBC9CC001D9952 /* WaveformBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
