@@ -18,7 +18,7 @@ struct MusicStateModel {
     var keyTimes: [CGFloat]
     var selectedRange: TrimmerRangeModel
 
-    mutating func updateTotalDurarion(value: CGFloat) {
+    mutating func updateTotalDuration(value: CGFloat) {
         totalDuration = value
     }
 

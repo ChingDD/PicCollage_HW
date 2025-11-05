@@ -42,7 +42,7 @@ class KeyTimeView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func updateKeytimeViewUI(start: CGFloat, keyTimes: [CGFloat], totalDuration: CGFloat, duration: CGFloat) {
+    func updateKeyTimeViewUI(start: CGFloat, keyTimes: [CGFloat], totalDuration: CGFloat, duration: CGFloat) {
         updateSelectedRangeView(start: start, totalDuration: totalDuration, duration: duration)
         updateKeyTimeButtons(keyTimes: keyTimes, totalDuration: totalDuration)
     }

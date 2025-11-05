@@ -66,7 +66,7 @@ class MusicEditorViewModel {
     }
 
     func updateTotalDuration(_ duration: CGFloat) {
-        state.updateTotalDurarion(value: duration)
+        state.updateTotalDuration(value: duration)
         updateObservables()
     }
 
@@ -124,11 +124,6 @@ class MusicEditorViewModel {
         updateObservables()
     }
 
-    func updateKeyTimes(_ keyTimes: [CGFloat]) {
-        state.updateKeyTimes(keyTimes)
-        updateObservables()
-    }
-
     func updateSelectedRangeDuration(_ duration: CGFloat) {
         state.updateSelectedRangeDuration(duration)
         updateObservables()
@@ -153,7 +148,7 @@ class MusicEditorViewModel {
         try settings.validate()
 
         // Apply to state
-        state.updateTotalDurarion(value: settings.totalDuration)
+        state.updateTotalDuration(value: settings.totalDuration)
         state.updateKeyTimes(settings.keyTimes)
 
         if let duration = settings.timelineDuration {

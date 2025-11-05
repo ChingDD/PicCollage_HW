@@ -118,7 +118,7 @@ class MusicTrimmerView: UIView {
     }
     
     func updateUI(viewModel: MusicEditorViewModel) {
-        keyTimeView.updateKeytimeViewUI(start: viewModel.start.value,
+        keyTimeView.updateKeyTimeViewUI(start: viewModel.state.selectedRange.start,
                                         keyTimes: viewModel.state.keyTimes,
                                         totalDuration: viewModel.state.totalDuration,
                                         duration: viewModel.state.selectedRange.duration)
