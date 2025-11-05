@@ -84,7 +84,7 @@ class MusicEditorViewController: UIViewController {
     }
     
     func binding() {
-        viewModel.start.bind { [weak self] start in
+        viewModel.onStateUpdated.bind { [weak self] _ in
             guard let self = self else { return }
             trimmerView.updateUI(viewModel: viewModel)
         }

@@ -15,10 +15,7 @@ class MusicEditorViewModel {
     private let playbackManager: PlaybackManager
 
     // Observable properties for view binding
-    let currentTime: ObservableObject<CGFloat> = ObservableObject(value: 0)
-    let start: ObservableObject<CGFloat> = ObservableObject(value: 0)
-    let end: ObservableObject<CGFloat> = ObservableObject(value: 0)
-    let totalDuration: ObservableObject<CGFloat> = ObservableObject(value: 0)
+    let onStateUpdated: ObservableObject<Void> = ObservableObject(value: ())
     let isPlaying: ObservableObject<Bool> = ObservableObject(value: false)
 
     var sectionTimeline: String {
@@ -176,10 +173,7 @@ class MusicEditorViewModel {
     }
 
     private func updateObservables() {
-        currentTime.value = state.currentTime
-        start.value = state.selectedRange.start
-        end.value = state.selectedRange.end
-        totalDuration.value = state.totalDuration
+        onStateUpdated.value = ()
     }
 
     private func formatTime(_ seconds: CGFloat) -> String {
