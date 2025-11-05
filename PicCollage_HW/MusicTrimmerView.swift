@@ -145,6 +145,10 @@ class MusicTrimmerView: UIView {
         keyTimeView.setupKeyTimes(keyTimes)
     }
     
+    func updateWaveView(viewModel: MusicEditorViewModel) {
+        waveformView.updateWaveformCanvasWidth(durationRatio: viewModel.durationRatio)
+    }
+    
     @objc func playButtonTapped() {
         musicTrimmerDelegate?.playButtonTapped()
     }
@@ -252,7 +256,6 @@ class MusicTrimmerView: UIView {
     }
 
     private func updateWaveformUI(viewModel: MusicEditorViewModel) {
-        waveformView.updateWaveformContentSizeWidth(durationRatio: viewModel.durationRatio)
         waveformView.updateProgressView(ratio: viewModel.progressRatio)
         // Calculate scroll offset through ViewModel, then apply it to View
         if let offsetX = viewModel.calculateScrollOffset(scrollViewBounds: waveformView.waveScrollView.bounds,

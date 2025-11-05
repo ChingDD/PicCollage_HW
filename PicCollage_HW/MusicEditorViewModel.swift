@@ -16,6 +16,7 @@ class MusicEditorViewModel {
 
     // Observable properties for view binding
     let onStateUpdated: ObservableObject<Void> = ObservableObject(value: ())
+    let onWaveformNeedsUpdate: ObservableObject<Void> = ObservableObject(value: ())
     let isPlaying: ObservableObject<Bool> = ObservableObject(value: false)
 
     var sectionTimeline: String {
@@ -53,18 +54,19 @@ class MusicEditorViewModel {
         self.state = state
         self.playbackManager = playbackManager
         self.playbackManager.delegate = self
-        updateObservables()
+        notifyStateUpdated()
     }
 
     func shiftTime(to time: CGFloat) {
         let shift = time - state.selectedRange.start
         state.updateTrimmerRange(by: shift)
-        updateObservables()
+        notifyStateUpdated()
     }
 
     func updateTotalDuration(_ duration: CGFloat) {
         state.updateTotalDuration(value: duration)
-        updateObservables()
+        notifyWaveformUpdated()
+        notifyStateUpdated()
     }
 
     func updateTimeFromScrollOffset(contentOffsetX: CGFloat,
@@ -113,17 +115,18 @@ class MusicEditorViewModel {
     
     func updateCurrentTime(by interval: TimeInterval) {
         state.updateCurrentTime(by: CGFloat(interval))
-        updateObservables()
+        notifyStateUpdated()
     }
 
     func resetToStart() {
         state.resetCurrentTime()
-        updateObservables()
+        notifyStateUpdated()
     }
 
     func updateSelectedRangeDuration(_ duration: CGFloat) {
         state.updateSelectedRangeDuration(duration)
-        updateObservables()
+        notifyWaveformUpdated()
+        notifyStateUpdated()
     }
 
     // MARK: - Settings Management
@@ -144,15 +147,29 @@ class MusicEditorViewModel {
         // Validate settings first
         try settings.validate()
 
+        // Track if waveform needs update
+        var needsWaveformUpdate = false
+
         // Apply to state
+        if state.totalDuration != settings.totalDuration {
+            needsWaveformUpdate = true
+        }
         state.updateTotalDuration(value: settings.totalDuration)
         state.updateKeyTimes(settings.keyTimes)
 
         if let duration = settings.timelineDuration {
+            if state.selectedRange.duration != duration {
+                needsWaveformUpdate = true
+            }
             state.updateSelectedRangeDuration(duration)
         }
 
-        updateObservables()
+        // Trigger waveform update if needed
+        if needsWaveformUpdate {
+            notifyWaveformUpdated()
+        }
+
+        notifyStateUpdated()
     }
 
     // MARK: - Private Methods
@@ -172,8 +189,12 @@ class MusicEditorViewModel {
         return ScrollParameters(scrollableWidth: scrollableWidth, changeableDuration: changeableDuration)
     }
 
-    private func updateObservables() {
+    private func notifyStateUpdated() {
         onStateUpdated.value = ()
+    }
+    
+    private func notifyWaveformUpdated() {
+        onWaveformNeedsUpdate.value = ()
     }
 
     private func formatTime(_ seconds: CGFloat) -> String {

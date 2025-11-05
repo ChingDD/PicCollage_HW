@@ -88,7 +88,12 @@ class MusicEditorViewController: UIViewController {
             guard let self = self else { return }
             trimmerView.updateUI(viewModel: viewModel)
         }
-        
+
+        viewModel.onWaveformNeedsUpdate.bind { [weak self] _ in
+            guard let self = self else { return }
+            trimmerView.updateWaveView(viewModel: viewModel)
+        }
+
         viewModel.isPlaying.bind { [weak self] isPlaying in
             guard let self = self else { return }
             trimmerView.updateButtonUI(isPlaying: isPlaying)
@@ -97,6 +102,7 @@ class MusicEditorViewController: UIViewController {
         trimmerView.onWidthChanged = { [weak self] _ in
             guard let self = self else { return }
             trimmerView.updateUI(viewModel: viewModel)
+            trimmerView.updateWaveView(viewModel: viewModel)
         }
     }
     

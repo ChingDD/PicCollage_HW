@@ -10,18 +10,24 @@ import UIKit
 protocol WaveformViewDelegate: AnyObject, UIScrollViewDelegate {}
 
 class WaveformView: UIView {
+    private enum UIConstants {
+        static let selectedRangeViewBorderWidth: CGFloat = 3
+        static let contentInsetRatio: CGFloat = 0.25          // 25%
+        static let selectedRangeWidthRatio: CGFloat = 0.5     // 50%
+        static let scrollViewHightRatio: CGFloat = 1/2.5
+    }
+    
     let selectedRangeView: UIView = {
         let view = UIView()
-        view.backgroundColor = .lightGray.withAlphaComponent(0.2)
+        view.backgroundColor = UIColor(red: 153/255, green: 152/255, blue: 156/255, alpha: 1)
         view.layer.borderColor = UIColor.systemBlue.cgColor
-        view.layer.borderWidth = 3
+        view.layer.borderWidth = UIConstants.selectedRangeViewBorderWidth
         view.isUserInteractionEnabled = false
         return view
     }()
     
-    let waveView: UIView = {
+    var waveformCanvas: UIView = {
         let view = UIView()
-        view.backgroundColor = .brown
         return view
     }()
     
@@ -39,7 +45,7 @@ class WaveformView: UIView {
     }()
     
     private var progressViewWidthConstraint: NSLayoutConstraint?
-    private var waveViewWidthConstraint: NSLayoutConstraint?
+    private var waveformCanvasWidthConstraint: NSLayoutConstraint?
 
     weak var delegate: WaveformViewDelegate? {
         didSet {
@@ -59,9 +65,9 @@ class WaveformView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        // 設置 contentInset 讓 waveView 的邊緣可以對齊 selectedRangeView 的邊緣
-        // selectedRangeView 居中且寬度為 50%，所以左右各留 25% 空間
-        let insetHorizontal = bounds.width * 0.25
+        // Set contentInset so that the edges of waveformCanvas align with the edges of selectedRangeView
+        // Since selectedRangeView is centered and its width is 50%, leave 25% space on each side
+        let insetHorizontal = bounds.width * UIConstants.contentInsetRatio
 
         waveScrollView.contentInset = UIEdgeInsets(
             top: 0,
@@ -79,29 +85,36 @@ class WaveformView: UIView {
         layoutIfNeeded()
 
         let width = selectedRangeView.frame.width * ratio
-        progressViewWidthConstraint?.constant = width
+        progressViewWidthConstraint?.constant = width - (2 * UIConstants.selectedRangeViewBorderWidth)
     }
 
-    func updateWaveformContentSizeWidth(durationRatio: CGFloat) {
+    func updateWaveformCanvasWidth(durationRatio: CGFloat) {
         layoutIfNeeded()
 
+        // Set waveformCanvas width
         let width = selectedRangeView.frame.width * durationRatio
-        waveViewWidthConstraint?.constant = width
+        waveformCanvasWidthConstraint?.constant = width
+        
+        // Make canvas
+        waveformCanvas.subviews.forEach { $0.removeFromSuperview() }
+        let newWaveform = WaveformComposer.makeWaveformCanvas(width: width,
+                                                              height: selectedRangeView.frame.height)
+        waveformCanvas.addSubview(newWaveform)
     }
 
     // MARK: - Private Methods
 
     private func commonInit() {
         backgroundColor = .black
-
-        addSubview(waveScrollView)
-        addSubview(progressView)
+        
         addSubview(selectedRangeView)
-        waveScrollView.addSubview(waveView)
+        addSubview(progressView)
+        addSubview(waveScrollView)
+        waveScrollView.addSubview(waveformCanvas)
 
         setupWaveScrollView()
         setupSelectedRangeView()
-        setupWaveView()
+        setupWaveformCanvas()
         setupProgressView()
     }
 
@@ -111,7 +124,7 @@ class WaveformView: UIView {
             waveScrollView.centerYAnchor.constraint(equalTo: centerYAnchor),
             waveScrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             waveScrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            waveScrollView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: (1/2.5))
+            waveScrollView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: UIConstants.scrollViewHightRatio)
         ])
     }
 
@@ -121,18 +134,18 @@ class WaveformView: UIView {
             selectedRangeView.centerYAnchor.constraint(equalTo: centerYAnchor),
             selectedRangeView.centerXAnchor.constraint(equalTo: centerXAnchor),
             selectedRangeView.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
-            selectedRangeView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.5)
+            selectedRangeView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: UIConstants.selectedRangeWidthRatio)
         ])
     }
 
-    private func setupWaveView() {
-        waveView.translatesAutoresizingMaskIntoConstraints = false
-        waveViewWidthConstraint = waveView.widthAnchor.constraint(equalToConstant: 0)
+    private func setupWaveformCanvas() {
+        waveformCanvas.translatesAutoresizingMaskIntoConstraints = false
+        waveformCanvasWidthConstraint = waveformCanvas.widthAnchor.constraint(equalToConstant: 0)
         NSLayoutConstraint.activate([
-            waveView.leadingAnchor.constraint(equalTo: waveScrollView.leadingAnchor),
-            waveView.trailingAnchor.constraint(equalTo: waveScrollView.trailingAnchor),
-            waveView.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
-            waveViewWidthConstraint!
+            waveformCanvas.leadingAnchor.constraint(equalTo: waveScrollView.leadingAnchor),
+            waveformCanvas.trailingAnchor.constraint(equalTo: waveScrollView.trailingAnchor),
+            waveformCanvas.heightAnchor.constraint(equalTo: waveScrollView.heightAnchor, multiplier: 1),
+            waveformCanvasWidthConstraint!
         ])
     }
     
@@ -140,9 +153,12 @@ class WaveformView: UIView {
         progressView.translatesAutoresizingMaskIntoConstraints = false
         progressViewWidthConstraint = progressView.widthAnchor.constraint(equalToConstant: 0)
         NSLayoutConstraint.activate([
-            progressView.leadingAnchor.constraint(equalTo: selectedRangeView.leadingAnchor),
-            progressView.topAnchor.constraint(equalTo: selectedRangeView.topAnchor),
-            progressView.heightAnchor.constraint(equalTo: selectedRangeView.heightAnchor, multiplier: 1),
+            progressView.leadingAnchor.constraint(equalTo: selectedRangeView.leadingAnchor,
+                                                  constant: UIConstants.selectedRangeViewBorderWidth),
+            progressView.topAnchor.constraint(equalTo: selectedRangeView.topAnchor,
+                                              constant: UIConstants.selectedRangeViewBorderWidth),
+            progressView.bottomAnchor.constraint(equalTo: selectedRangeView.bottomAnchor,
+                                                 constant: -(UIConstants.selectedRangeViewBorderWidth)),
             progressViewWidthConstraint!
         ])
     }
