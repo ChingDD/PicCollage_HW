@@ -42,7 +42,10 @@ class WaveformView: UIView {
         view.isUserInteractionEnabled = false
         return view
     }()
-    
+
+    private var barViews: [UIView] = []
+    private var barHeightConstraints: [NSLayoutConstraint] = []
+
     private var progressViewWidthConstraint: NSLayoutConstraint?
     private var waveformCanvasWidthConstraint: NSLayoutConstraint?
     private var gradientBorderLayer: CAGradientLayer?
@@ -82,18 +85,50 @@ class WaveformView: UIView {
         progressViewWidthConstraint?.constant = width - (2 * UIConstants.selectedRangeViewBorderWidth)
     }
 
-    func updateWaveformCanvasWidth(durationRatio: CGFloat) {
+    private func setupWaveform(viewModel: WaveformViewModel, durationRatio: CGFloat) {
         layoutIfNeeded()
 
-        // Set waveformCanvas width
+        // Calculate canvas width
         let width = selectedRangeView.frame.width * durationRatio
         waveformCanvasWidthConstraint?.constant = width
-        
-        // Make canvas
+
+        // Adjust bar count based on target width
+        let targetBarCount = WaveformComposer.calculateBarCount(width: width)
+        viewModel.adjustBarCount(to: targetBarCount)
+
+        // Clear existing bars
         waveformCanvas.subviews.forEach { $0.removeFromSuperview() }
-        let newWaveform = WaveformComposer.makeWaveformCanvas(width: width,
-                                                              height: selectedRangeView.frame.height)
-        waveformCanvas.addSubview(newWaveform)
+        barViews.removeAll()
+        barHeightConstraints.removeAll()
+
+        // Create new waveform with ViewModel's bar states
+        let canvas = WaveformComposer.makeWaveformCanvas(
+            barStates: viewModel.bars,
+            height: selectedRangeView.frame.height
+        )
+
+        waveformCanvas.addSubview(canvas.containerView)
+        barViews = canvas.barViews
+        barHeightConstraints = canvas.heightConstraints
+    }
+
+    func updateBarAppearances(viewModel: WaveformViewModel) {
+        for i in barViews.indices where i < viewModel.bars.count {
+            let barState = viewModel.bars[i]
+            let bar = barViews[i]
+
+            // Update scale with animation
+            UIView.animate(withDuration: 0.1) {
+                bar.transform = CGAffineTransform(scaleX: 1.0, y: barState.scale)
+            }
+
+            // Update brightness (color)
+            bar.backgroundColor = UIColor(white: barState.brightness, alpha: 1.0)
+        }
+    }
+
+    func updateWaveformCanvasWidth(viewModel: WaveformViewModel, durationRatio: CGFloat) {
+        setupWaveform(viewModel: viewModel, durationRatio: durationRatio)
     }
 
     // MARK: - Private Methods

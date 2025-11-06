@@ -19,14 +19,23 @@ class MainCoordinator: Coordinator {
     var navigationController: UINavigationController = UINavigationController()
     
     func startCoordinator() {
+        // MusicEditorViewModel
         let trimmerRangeModel = TrimmerRangeModel(start: 0.0)
         let musicStateModel = MusicStateModel(totalDuration: 80.0,
                                               currentTime: 0.0,
                                               keyTimes: [10, 30, 50, 60, 75],
                                               selectedRange: trimmerRangeModel)
-        let viewModel = MusicEditorViewModel(state: musicStateModel)
-        let initViewController = MusicEditorViewController(viewModel: viewModel)
+        let editViewModel = MusicEditorViewModel(state: musicStateModel)
+
+        // WaveformViewModel
+        let amplitudes: [CGFloat] = (0..<300).map { _ in CGFloat.random(in: 0...1) }
+        let waveViewModel = WaveformViewModel(amplitudes: amplitudes)
+
+        // Creat MusicEditorViewController
+        let initViewController = MusicEditorViewController(viewModel: editViewModel, waveformViewModel: waveViewModel)
         initViewController.coordinator = self
+
+        // To music edit page
         navigationController.pushViewController(initViewController, animated: false)
     }
     

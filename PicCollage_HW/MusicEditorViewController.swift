@@ -8,8 +8,11 @@
 import UIKit
 
 class MusicEditorViewController: UIViewController {
-    let viewModel: MusicEditorViewModel
-    
+    // MARK: - ViewModel
+    let editorViewModel: MusicEditorViewModel
+    let waveViewModel: WaveformViewModel
+
+    // MARK: - UI
     let trimmerView: MusicTrimmerView = MusicTrimmerView()
 
     let settingPageButton: UIButton = {
@@ -25,8 +28,9 @@ class MusicEditorViewController: UIViewController {
     weak var coordinator: MainCoordinator?
     
     // MARK: - Initialization
-    init(viewModel: MusicEditorViewModel) {
-        self.viewModel = viewModel
+    init(viewModel: MusicEditorViewModel, waveformViewModel: WaveformViewModel) {
+        self.editorViewModel = viewModel
+        self.waveViewModel = waveformViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -42,7 +46,7 @@ class MusicEditorViewController: UIViewController {
         
         // UI Setting
         setupTrimmerView()
-        trimmerView.setupkeyTimeButton(keyTimes: viewModel.state.keyTimes)
+        trimmerView.setupKeyTimeButton(keyTimes: editorViewModel.state.keyTimes)
         trimmerView.setDelegates(musicTrimmer: self, keyTime: self, waveform: self)
         setupSettingButton()
         
@@ -55,13 +59,18 @@ class MusicEditorViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        trimmerView.setupkeyTimeButton(keyTimes: viewModel.state.keyTimes)
-        trimmerView.updateUI(viewModel: viewModel)
+        trimmerView.setupKeyTimeButton(keyTimes: editorViewModel.state.keyTimes)
+        trimmerView.updateUI(viewModel: editorViewModel)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         print("viewDidLayoutSubviews")
+    }
+
+
+    @objc func didTapSettingButton() {
+        coordinator?.toSettingPage(viewModel: editorViewModel)
     }
 
     // MARK: - Private Methods
@@ -83,31 +92,78 @@ class MusicEditorViewController: UIViewController {
         ])
     }
     
-    func binding() {
-        viewModel.onStateUpdated.bind { [weak self] _ in
+    private func binding() {
+        editorViewModel.onStateUpdated.bind { [weak self] _ in
             guard let self = self else { return }
-            trimmerView.updateUI(viewModel: viewModel)
+            trimmerView.updateUI(viewModel: editorViewModel)
         }
 
-        viewModel.onWaveformNeedsUpdate.bind { [weak self] _ in
+        editorViewModel.onWaveformNeedsUpdate.bind { [weak self] _ in
             guard let self = self else { return }
-            trimmerView.updateWaveView(viewModel: viewModel)
+            // Rebuild all waveform canvas
+            trimmerView.updateWaveView(editorViewModel: editorViewModel, waveViewModel: waveViewModel)
+
+            // Update UI after canvas rebuild (this will recalculate and set correct scroll offset)
+            trimmerView.updateUI(viewModel: editorViewModel)
+
+            // Update bar states
+            updateWaveformBarStates(scrollView: trimmerView.waveformView.waveScrollView)
         }
 
-        viewModel.isPlaying.bind { [weak self] isPlaying in
+        editorViewModel.isPlaying.bind { [weak self] isPlaying in
             guard let self = self else { return }
             trimmerView.updateButtonUI(isPlaying: isPlaying)
         }
         
         trimmerView.onWidthChanged = { [weak self] _ in
             guard let self = self else { return }
-            trimmerView.updateUI(viewModel: viewModel)
-            trimmerView.updateWaveView(viewModel: viewModel)
+            // Rebuild all waveform canvas first
+            trimmerView.updateWaveView(editorViewModel: editorViewModel, waveViewModel: waveViewModel)
+
+            // Update UI after canvas rebuild (this will recalculate and set correct scroll offset)
+            trimmerView.updateUI(viewModel: editorViewModel)
+
+            // Update bar states
+            updateWaveformBarStates(scrollView: trimmerView.waveformView.waveScrollView)
+        }
+
+        waveViewModel.onBarsUpdated.bind { [weak self] _ in
+            guard let self = self else { return }
+            // Update bars UI
+            trimmerView.updateWaveBar(viewModel: waveViewModel)
         }
     }
-    
-    @objc func didTapSettingButton() {
-        coordinator?.toSettingPage(viewModel: viewModel)
+
+    private func updateWaveformBarStates(scrollView: UIScrollView) {
+        let waveformView = trimmerView.waveformView
+
+        // Calculate selected frame in waveformCanvas coordinate system
+        let selectedRangeView = waveformView.selectedRangeView
+        let waveformCanvas = waveformView.waveformCanvas
+
+        // Convert selectedRangeView bounds to waveformCanvas coordinate
+        let selectedFrameInCanvas = waveformCanvas.convert(selectedRangeView.bounds, from: selectedRangeView)
+        let selectedFrame = CGRect(x: max(0, selectedFrameInCanvas.minX),
+                                   y: 0,
+                                   width: selectedRangeView.bounds.width,
+                                   height: 1)
+
+        // Calculate visible frame in waveformCanvas coordinate
+        let visibleX = scrollView.contentOffset.x + scrollView.contentInset.left
+        let visibleFrame = CGRect(x: max(0, visibleX),
+                                  y: 0,
+                                  width: scrollView.bounds.width,
+                                  height: 1)
+
+        // Get bar dimensions
+        let barWidth = WaveformComposer.getBarWidth()
+        let gap = WaveformComposer.getGap()
+
+        // Update ViewModel
+        waveViewModel.update(for: visibleFrame,
+                             selectedFrame: selectedFrame,
+                             barWidth: barWidth,
+                             gap: gap)
     }
 
     /*
@@ -122,27 +178,34 @@ class MusicEditorViewController: UIViewController {
 
 }
 
+// MARK: - MusicTrimmerViewDelegate
 extension MusicEditorViewController: MusicTrimmerViewDelegate {
     func playButtonTapped() {
-        viewModel.togglePlayPause()
+        editorViewModel.togglePlayPause()
     }
     
     func resetButtonTapped() {
-        viewModel.resetToStart()
+        editorViewModel.resetToStart()
     }
 }
 
+// MARK: - KeyTimeViewDelegate
 extension MusicEditorViewController: KeyTimeViewDelegate {
     func didTapKeytime(time: Int) {
-        viewModel.shiftTime(to: CGFloat(time))
+        editorViewModel.shiftTime(to: CGFloat(time))
     }
 }
 
+// MARK: - WaveformViewDelegate
 extension MusicEditorViewController: WaveformViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        // Update waveform bar states
+        updateWaveformBarStates(scrollView: scrollView)
+
         guard scrollView.isDragging else { return }
 
-        viewModel.updateTimeFromScrollOffset(
+        // Update editor time
+        editorViewModel.updateTimeFromScrollOffset(
             contentOffsetX: scrollView.contentOffset.x,
             contentInsetLeft: scrollView.contentInset.left,
             contentInsetRight: scrollView.contentInset.right,

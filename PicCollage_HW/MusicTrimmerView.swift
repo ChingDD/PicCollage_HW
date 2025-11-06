@@ -141,14 +141,18 @@ class MusicTrimmerView: UIView {
         playPauseButton.setTitle(isPlaying ? "Pause" : "Play", for: .normal)
     }
     
-    func setupkeyTimeButton(keyTimes: [CGFloat]) {
+    func setupKeyTimeButton(keyTimes: [CGFloat]) {
         keyTimeView.setupKeyTimes(keyTimes)
     }
-    
-    func updateWaveView(viewModel: MusicEditorViewModel) {
-        waveformView.updateWaveformCanvasWidth(durationRatio: viewModel.durationRatio)
+
+    func updateWaveView(editorViewModel: MusicEditorViewModel, waveViewModel: WaveformViewModel) {
+        waveformView.updateWaveformCanvasWidth(viewModel: waveViewModel, durationRatio: editorViewModel.durationRatio)
     }
-    
+
+    func updateWaveBar(viewModel: WaveformViewModel) {
+        waveformView.updateBarAppearances(viewModel: viewModel)
+    }
+
     @objc func playButtonTapped() {
         musicTrimmerDelegate?.playButtonTapped()
     }

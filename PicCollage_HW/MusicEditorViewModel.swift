@@ -133,11 +133,9 @@ class MusicEditorViewModel {
 
     // Get current settings as MusicEditorSettings model
     func getCurrentSettings() -> MusicEditorSettings {
-        return MusicEditorSettings(
-            totalDuration: state.totalDuration,
-            keyTimes: state.keyTimes,
-            selectedRangeDuration: state.selectedRange.duration
-        )
+        return MusicEditorSettings(totalDuration: state.totalDuration,
+                                   keyTimes: state.keyTimes,
+                                   selectedRangeDuration: state.selectedRange.duration)
     }
 
     // Apply validated settings to the state
