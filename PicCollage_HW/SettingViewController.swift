@@ -8,7 +8,7 @@
 import UIKit
 
 class SettingViewController: UIViewController {
-    let viewModel: MusicEditorViewModel
+    private let viewModel: MusicEditorViewModel
     weak var coordinator: MainCoordinator?
     
     private let scrollView: UIScrollView = {

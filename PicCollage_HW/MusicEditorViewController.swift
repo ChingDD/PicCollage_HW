@@ -9,13 +9,13 @@ import UIKit
 
 class MusicEditorViewController: UIViewController {
     // MARK: - ViewModel
-    let editorViewModel: MusicEditorViewModel
-    let waveViewModel: WaveformViewModel
+    private let editorViewModel: MusicEditorViewModel
+    private let waveViewModel: WaveformViewModel
 
     // MARK: - UI
-    let trimmerView: MusicTrimmerView = MusicTrimmerView()
+    private(set) var trimmerView: MusicTrimmerView = MusicTrimmerView()
 
-    let settingPageButton: UIButton = {
+    private let settingPageButton: UIButton = {
         let button = UIButton(type: .system)
         var config = UIButton.Configuration.filled()
         config.baseForegroundColor = .black
@@ -191,7 +191,7 @@ extension MusicEditorViewController: MusicTrimmerViewDelegate {
 
 // MARK: - KeyTimeViewDelegate
 extension MusicEditorViewController: KeyTimeViewDelegate {
-    func didTapKeytime(time: Int) {
+    func didTapKeyTime(time: Int) {
         editorViewModel.shiftTime(to: CGFloat(time))
     }
 }

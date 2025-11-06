@@ -16,9 +16,9 @@ struct WaveformComposer {
     }
 
     struct WaveformCanvas {
-        let containerView: UIView
-        let barViews: [UIView]
-        let heightConstraints: [NSLayoutConstraint]
+        private(set) var containerView: UIView
+        private(set) var barViews: [UIView]
+        private(set) var heightConstraints: [NSLayoutConstraint]
     }
 
     // MARK: - Public Methods

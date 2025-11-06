@@ -13,8 +13,8 @@ class ObservableObject <T> {
             listener?(value)
         }
     }
-    
-    var listener: ((T) -> Void)?
+
+    private var listener: ((T) -> Void)?
     
     init(value: T) {
         self.value = value
@@ -36,8 +36,8 @@ class ObservableChangedObject<T: Equatable> {
             }
         }
     }
-    
-    var listener: ((T) -> Void)?
+
+    private var listener: ((T) -> Void)?
     
     init(value: T) {
         self.value = value

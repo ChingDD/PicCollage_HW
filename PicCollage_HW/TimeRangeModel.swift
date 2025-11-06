@@ -8,7 +8,7 @@
 import Foundation
 
 struct TrimmerRangeModel {
-    var start: CGFloat
+    private(set) var start: CGFloat
     var end: CGFloat {
         start + duration
     }

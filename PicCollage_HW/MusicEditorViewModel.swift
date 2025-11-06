@@ -15,9 +15,9 @@ class MusicEditorViewModel {
     private let playbackManager: PlaybackManager
 
     // Observable properties for view binding
-    let onStateUpdated: ObservableObject<Void> = ObservableObject(value: ())
-    let onWaveformNeedsUpdate: ObservableObject<Void> = ObservableObject(value: ())
-    let isPlaying: ObservableObject<Bool> = ObservableObject(value: false)
+    private(set) var onStateUpdated: ObservableObject<Void> = ObservableObject(value: ())
+    private(set) var onWaveformNeedsUpdate: ObservableObject<Void> = ObservableObject(value: ())
+    private(set) var isPlaying: ObservableObject<Bool> = ObservableObject(value: false)
 
     var sectionTimeline: String {
         let range = state.selectedRange
@@ -60,12 +60,6 @@ class MusicEditorViewModel {
     func shiftTime(to time: CGFloat) {
         let shift = time - state.selectedRange.start
         state.updateTrimmerRange(by: shift)
-        notifyStateUpdated()
-    }
-
-    func updateTotalDuration(_ duration: CGFloat) {
-        state.updateTotalDuration(value: duration)
-        notifyWaveformUpdated()
         notifyStateUpdated()
     }
 
@@ -112,20 +106,9 @@ class MusicEditorViewModel {
         playbackManager.togglePlayPause()
         isPlaying.value = playbackManager.isPlaying
     }
-    
-    func updateCurrentTime(by interval: TimeInterval) {
-        state.updateCurrentTime(by: CGFloat(interval))
-        notifyStateUpdated()
-    }
 
     func resetToStart() {
         state.resetCurrentTime()
-        notifyStateUpdated()
-    }
-
-    func updateSelectedRangeDuration(_ duration: CGFloat) {
-        state.updateSelectedRangeDuration(duration)
-        notifyWaveformUpdated()
         notifyStateUpdated()
     }
 
@@ -202,6 +185,11 @@ class MusicEditorViewModel {
 
     private func formatPercentage(_ value: CGFloat, total: CGFloat) -> String {
         String(format: "%.1f%%", (value / total) * 100)
+    }
+
+    private func updateCurrentTime(by interval: TimeInterval) {
+        state.updateCurrentTime(by: CGFloat(interval))
+        notifyStateUpdated()
     }
 }
 

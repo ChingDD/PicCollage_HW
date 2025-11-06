@@ -8,23 +8,23 @@
 import UIKit
 
 protocol KeyTimeViewDelegate: AnyObject {
-    func didTapKeytime(time: Int)
+    func didTapKeyTime(time: Int)
 }
 
 class KeyTimeView: UIView {
-    let keytimeBar: UIView = {
+    private let keyTimeBar: UIView = {
         let view = UIView()
         view.backgroundColor = .systemGray
         view.layer.cornerRadius = 8
         return view
     }()
-    let selectedRangeView: UIView = {
+    private let selectedRangeView: UIView = {
         let view = UIView()
         view.backgroundColor = .yellow
         view.layer.cornerRadius = 8
         return view
     }()
-    var keyTimeButtons: [UIButton] = []
+    private var keyTimeButtons: [UIButton] = []
 
     // Auto Layout constraints for dynamic updates
     private var selectedRangeLeadingConstraint: NSLayoutConstraint?
@@ -58,7 +58,7 @@ class KeyTimeView: UIView {
     }
     
     @objc func didTapButton(button: UIButton) {
-        delegate?.didTapKeytime(time: button.tag)
+        delegate?.didTapKeyTime(time: button.tag)
     }
     
     // MARK: - Private Methods
@@ -67,32 +67,32 @@ class KeyTimeView: UIView {
         backgroundColor = .black
         layer.cornerRadius = 20
 
-        addSubview(keytimeBar)
+        addSubview(keyTimeBar)
 
         setupKeytimeBar()
         setSelectedRangeView()
     }
 
     private func setupKeytimeBar() {
-        keytimeBar.translatesAutoresizingMaskIntoConstraints = false
+        keyTimeBar.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            keytimeBar.heightAnchor.constraint(equalToConstant: 16),
-            keytimeBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            keytimeBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            keytimeBar.centerYAnchor.constraint(equalTo: centerYAnchor)
+            keyTimeBar.heightAnchor.constraint(equalToConstant: 16),
+            keyTimeBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
+            keyTimeBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
+            keyTimeBar.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
     
     private func setSelectedRangeView() {
-        keytimeBar.addSubview(selectedRangeView)
+        keyTimeBar.addSubview(selectedRangeView)
         selectedRangeView.translatesAutoresizingMaskIntoConstraints = false
 
-        selectedRangeLeadingConstraint = selectedRangeView.leadingAnchor.constraint(equalTo: keytimeBar.leadingAnchor, constant: 0)
+        selectedRangeLeadingConstraint = selectedRangeView.leadingAnchor.constraint(equalTo: keyTimeBar.leadingAnchor, constant: 0)
         selectedRangeWidthConstraint = selectedRangeView.widthAnchor.constraint(equalToConstant: 0)
 
         NSLayoutConstraint.activate([
-            selectedRangeView.topAnchor.constraint(equalTo: keytimeBar.topAnchor),
-            selectedRangeView.bottomAnchor.constraint(equalTo: keytimeBar.bottomAnchor),
+            selectedRangeView.topAnchor.constraint(equalTo: keyTimeBar.topAnchor),
+            selectedRangeView.bottomAnchor.constraint(equalTo: keyTimeBar.bottomAnchor),
             selectedRangeLeadingConstraint!,
             selectedRangeWidthConstraint!
         ])
@@ -108,13 +108,13 @@ class KeyTimeView: UIView {
             btn.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
             addSubview(btn)
 
-            let centerXConstraint = btn.centerXAnchor.constraint(equalTo: keytimeBar.leadingAnchor, constant: 0)
+            let centerXConstraint = btn.centerXAnchor.constraint(equalTo: keyTimeBar.leadingAnchor, constant: 0)
             buttonCenterXConstraints.append(centerXConstraint)
 
             NSLayoutConstraint.activate([
                 btn.widthAnchor.constraint(equalToConstant: 20),
                 btn.heightAnchor.constraint(equalToConstant: 20),
-                btn.centerYAnchor.constraint(equalTo: keytimeBar.centerYAnchor),
+                btn.centerYAnchor.constraint(equalTo: keyTimeBar.centerYAnchor),
                 centerXConstraint
             ])
 
@@ -125,7 +125,7 @@ class KeyTimeView: UIView {
     private func updateSelectedRangeView(start: CGFloat, totalDuration: CGFloat, duration: CGFloat) {
         layoutIfNeeded()  // Ensure keytimeBar has a valid width
 
-        let barWidth = keytimeBar.bounds.width
+        let barWidth = keyTimeBar.bounds.width
         let leadingOffset = (barWidth / CGFloat(totalDuration)) * start
         let rangeWidth = (barWidth / CGFloat(totalDuration)) * duration
 
@@ -136,7 +136,7 @@ class KeyTimeView: UIView {
     private func updateKeyTimeButtons(keyTimes: [CGFloat], totalDuration: CGFloat) {
         layoutIfNeeded()  // Ensure keytimeBar has a valid width
 
-        let barWidth = keytimeBar.bounds.width
+        let barWidth = keyTimeBar.bounds.width
         for (idx, btn) in keyTimeButtons.enumerated() {
             let time = btn.tag
             let centerXOffset = (barWidth / CGFloat(totalDuration)) * CGFloat(time)

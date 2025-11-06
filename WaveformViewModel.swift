@@ -9,7 +9,7 @@ import Foundation
 
 class WaveformViewModel {
     private(set) var bars: [WaveformBarState] = []
-    let onBarsUpdated = ObservableObject<Void>(value: ())
+    private(set) var onBarsUpdated = ObservableObject<Void>(value: ())
 
     init(amplitudes: [CGFloat]) {
         bars = amplitudes.map { WaveformBarState(amplitude: $0, scale: 1.0, brightness: 1.0) }

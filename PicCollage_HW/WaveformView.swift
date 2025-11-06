@@ -17,26 +17,26 @@ class WaveformView: UIView {
         static let scrollViewHightRatio: CGFloat = 1/2.5
     }
     
-    let selectedRangeView: UIView = {
+    private(set) var selectedRangeView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(red: 153/255, green: 152/255, blue: 156/255, alpha: 1)
         view.isUserInteractionEnabled = false
         return view
     }()
-    
-    var waveformCanvas: UIView = {
+
+    private(set) var waveformCanvas: UIView = {
         let view = UIView()
         return view
     }()
-    
-    let waveScrollView: UIScrollView = {
+
+    private(set) var waveScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.isScrollEnabled = true
         scrollView.showsHorizontalScrollIndicator = false
         return scrollView
     }()
-    
-    let progressView: UIView = {
+
+    private let progressView: UIView = {
         let view = UIView()
         view.backgroundColor = .green
         view.isUserInteractionEnabled = false
@@ -83,33 +83,6 @@ class WaveformView: UIView {
 
         let width = selectedRangeView.frame.width * ratio
         progressViewWidthConstraint?.constant = width - (2 * UIConstants.selectedRangeViewBorderWidth)
-    }
-
-    private func setupWaveform(viewModel: WaveformViewModel, durationRatio: CGFloat) {
-        layoutIfNeeded()
-
-        // Calculate canvas width
-        let width = selectedRangeView.frame.width * durationRatio
-        waveformCanvasWidthConstraint?.constant = width
-
-        // Adjust bar count based on target width
-        let targetBarCount = WaveformComposer.calculateBarCount(width: width)
-        viewModel.adjustBarCount(to: targetBarCount)
-
-        // Clear existing bars
-        waveformCanvas.subviews.forEach { $0.removeFromSuperview() }
-        barViews.removeAll()
-        barHeightConstraints.removeAll()
-
-        // Create new waveform with ViewModel's bar states
-        let canvas = WaveformComposer.makeWaveformCanvas(
-            barStates: viewModel.bars,
-            height: selectedRangeView.frame.height
-        )
-
-        waveformCanvas.addSubview(canvas.containerView)
-        barViews = canvas.barViews
-        barHeightConstraints = canvas.heightConstraints
     }
 
     func updateBarAppearances(viewModel: WaveformViewModel) {
@@ -236,5 +209,32 @@ class WaveformView: UIView {
             bottom: 0,
             right: insetHorizontal
         )
+    }
+
+    private func setupWaveform(viewModel: WaveformViewModel, durationRatio: CGFloat) {
+        layoutIfNeeded()
+
+        // Calculate canvas width
+        let width = selectedRangeView.frame.width * durationRatio
+        waveformCanvasWidthConstraint?.constant = width
+
+        // Adjust bar count based on target width
+        let targetBarCount = WaveformComposer.calculateBarCount(width: width)
+        viewModel.adjustBarCount(to: targetBarCount)
+
+        // Clear existing bars
+        waveformCanvas.subviews.forEach { $0.removeFromSuperview() }
+        barViews.removeAll()
+        barHeightConstraints.removeAll()
+
+        // Create new waveform with ViewModel's bar states
+        let canvas = WaveformComposer.makeWaveformCanvas(
+            barStates: viewModel.bars,
+            height: selectedRangeView.frame.height
+        )
+
+        waveformCanvas.addSubview(canvas.containerView)
+        barViews = canvas.barViews
+        barHeightConstraints = canvas.heightConstraints
     }
 }

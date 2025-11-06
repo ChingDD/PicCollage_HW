@@ -8,15 +8,15 @@
 import Foundation
 
 struct ScrollParameters {
-    let scrollableWidth: CGFloat
-    let changeableDuration: CGFloat
+    private(set) var scrollableWidth: CGFloat
+    private(set) var changeableDuration: CGFloat
 }
 
 struct MusicStateModel {
-    var totalDuration: CGFloat
-    var currentTime: CGFloat
-    var keyTimes: [CGFloat]
-    var selectedRange: TrimmerRangeModel
+    private(set) var totalDuration: CGFloat
+    private(set) var currentTime: CGFloat
+    private(set) var keyTimes: [CGFloat]
+    private(set) var selectedRange: TrimmerRangeModel
 
     mutating func updateTotalDuration(value: CGFloat) {
         totalDuration = value
