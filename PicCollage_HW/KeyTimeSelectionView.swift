@@ -9,9 +9,10 @@ import SwiftUI
 
 struct KeyTimeSelectionView: View {
     // MARK: Property
-    var keyTimePercentage: [CGFloat] = [0.2, 0.5, 0.6 ,0.8]
+    var keyTimePercentage: [CGFloat] = [0.2, 0.5, 0.6 ,0.9]
     let circleRadius: CGFloat = 25
     var timeRatio: CGFloat = 0.2  // selected sec / total sec
+    @State private var startTimeRatio: CGFloat = 0.0  // 時間區間的起始點（0.0 到 1.0）
     var barHeight: CGFloat {
         circleRadius * 2 * 0.8
     }
@@ -54,7 +55,8 @@ struct KeyTimeSelectionView: View {
                     Rectangle()
                         .fill(Color.yellow)
                         .cornerRadius(50)
-                        .frame(width: barWidth * timeRatio ,height: 20)
+                        .frame(width: barWidth * timeRatio, height: 20)
+                        .offset(x: -(barWidth / 2) + (barWidth * startTimeRatio) + (timeRatio * barWidth / 2), y: 0)
                     
                     /*
                      計算邏輯：
@@ -64,6 +66,14 @@ struct KeyTimeSelectionView: View {
                      */
                     Button {
                         print("圓形按鈕被點擊了")
+                        // 檢查是否超出右邊界
+                        let proposedStart = keyTimePercentage[0]
+                        if proposedStart + timeRatio > 1.0 {
+                            // 超出邊界，讓黃色 Rectangle 的右邊緣貼齊藍色 bar 的右邊緣
+                            startTimeRatio = 1.0 - timeRatio
+                        } else {
+                            startTimeRatio = proposedStart
+                        }
                     } label: {
                         Circle()
                             .fill(Color.pink)
@@ -73,6 +83,14 @@ struct KeyTimeSelectionView: View {
 
                     Button {
                         print("圓形按鈕被點擊了")
+                        // 檢查是否超出右邊界
+                        let proposedStart = keyTimePercentage[1]
+                        if proposedStart + timeRatio > 1.0 {
+                            // 超出邊界，讓黃色 Rectangle 的右邊緣貼齊藍色 bar 的右邊緣
+                            startTimeRatio = 1.0 - timeRatio
+                        } else {
+                            startTimeRatio = proposedStart
+                        }
                     } label: {
                         Circle()
                             .fill(Color.pink)
@@ -82,6 +100,14 @@ struct KeyTimeSelectionView: View {
 
                     Button {
                         print("圓形按鈕被點擊了")
+                        // 檢查是否超出右邊界
+                        let proposedStart = keyTimePercentage[2]
+                        if proposedStart + timeRatio > 1.0 {
+                            // 超出邊界，讓黃色 Rectangle 的右邊緣貼齊藍色 bar 的右邊緣
+                            startTimeRatio = 1.0 - timeRatio
+                        } else {
+                            startTimeRatio = proposedStart
+                        }
                     } label: {
                         Circle()
                             .fill(Color.pink)
@@ -91,6 +117,14 @@ struct KeyTimeSelectionView: View {
 
                     Button {
                         print("圓形按鈕被點擊了")
+                        // 檢查是否超出右邊界
+                        let proposedStart = keyTimePercentage[3]
+                        if proposedStart + timeRatio > 1.0 {
+                            // 超出邊界，讓黃色 Rectangle 的右邊緣貼齊藍色 bar 的右邊緣
+                            startTimeRatio = 1.0 - timeRatio
+                        } else {
+                            startTimeRatio = proposedStart
+                        }
                     } label: {
                         Circle()
                             .fill(Color.pink)
