@@ -8,9 +8,15 @@
 import SwiftUI
 
 struct KeyTimeSelectionView: View {
-    var keyTimePercentage: [CGFloat] = [0.2, 0.4, 0.6 ,0.8]
+    // MARK: Property
+    var keyTimePercentage: [CGFloat] = [0.2, 0.5, 0.6 ,0.8]
     let circleRadius: CGFloat = 25
+    var timeRatio: CGFloat = 0.2  // selected sec / total sec
+    var barHeight: CGFloat {
+        circleRadius * 2 * 0.8
+    }
 
+    // MARK: Body
     var body: some View {
         VStack {
             // KeyTime Text
@@ -26,14 +32,16 @@ struct KeyTimeSelectionView: View {
                 .bold()
                 .foregroundStyle(Color.green)
             
+            
+            
             // Keytime Button
             GeometryReader { proxy in
-                // 藍色 bar 的實際寬度
-                let barWidth = proxy.size.width - 40 // 因為 .padding(.horizontal, 20)
+                // 藍色 bar 的實際寬度，因為 .padding(.horizontal, 20)
+                let barWidth = proxy.size.width - 40
 
                 ZStack {
                     Rectangle()
-                        .fill(Color.yellow)
+                        .fill(Color.black)
                         .cornerRadius(50)
                         .frame(height: 40)
 
@@ -42,6 +50,26 @@ struct KeyTimeSelectionView: View {
                         .cornerRadius(50)
                         .frame(height: 20)
                         .padding(.horizontal, 20)
+                    
+                    Rectangle()
+                        .fill(Color.yellow)
+                        .cornerRadius(50)
+                        .frame(width: barWidth * timeRatio ,height: 20)
+                    
+                    /*
+                     計算邏輯：
+                       - -barWidth / 2：因為 ZStack 預設將子視圖放在中心，所以需要先向左偏移一半寬度到起始點
+                       - + 20：加上左邊的 padding
+                       - + barWidth * keyTimePercentage[i]：根據百分比計算位置
+                     */
+                    Button {
+                        print("圓形按鈕被點擊了")
+                    } label: {
+                        Circle()
+                            .fill(Color.pink)
+                            .frame(width: circleRadius, height: circleRadius)
+                    }
+                    .offset(x: -barWidth / 2 + barWidth * keyTimePercentage[0], y: 0)
 
                     Button {
                         print("圓形按鈕被點擊了")
@@ -50,7 +78,7 @@ struct KeyTimeSelectionView: View {
                             .fill(Color.pink)
                             .frame(width: circleRadius, height: circleRadius)
                     }
-                    .offset(x: 20 + barWidth * keyTimePercentage[0] - (circleRadius / 2), y: 0)
+                    .offset(x: -barWidth / 2 + barWidth * keyTimePercentage[1], y: 0)
 
                     Button {
                         print("圓形按鈕被點擊了")
@@ -59,7 +87,7 @@ struct KeyTimeSelectionView: View {
                             .fill(Color.pink)
                             .frame(width: circleRadius, height: circleRadius)
                     }
-                    .offset(x: circleRadius + barWidth * keyTimePercentage[1] - (circleRadius / 2), y: 0)
+                    .offset(x: -barWidth / 2 + barWidth * keyTimePercentage[2], y: 0)
 
                     Button {
                         print("圓形按鈕被點擊了")
@@ -68,19 +96,11 @@ struct KeyTimeSelectionView: View {
                             .fill(Color.pink)
                             .frame(width: circleRadius, height: circleRadius)
                     }
-                    .offset(x: circleRadius + barWidth * keyTimePercentage[2] - (circleRadius / 2), y: 0)
-
-                    Button {
-                        print("圓形按鈕被點擊了")
-                    } label: {
-                        Circle()
-                            .fill(Color.pink)
-                            .frame(width: circleRadius, height: circleRadius)
-                    }
-                    .offset(x: circleRadius + barWidth * keyTimePercentage[3] - (circleRadius / 2), y: 0)
+                    .offset(x: -barWidth / 2 + barWidth * keyTimePercentage[3], y: 0)
                 }
             }
-            
+            .frame(height: barHeight)
+
             // Timeline Text
             Text("Music Timeline")
                 .fontWeight(.heavy)
