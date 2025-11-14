@@ -10,9 +10,11 @@ import SwiftUI
 struct KeyTimeSelectionView: View {
     // MARK: Property
     @State private var startTimeRatio: CGFloat = 0.0  // 時間區間的起始點（0.0 到 1.0）
-    let circleRadius: CGFloat = 25
     var keyTimePercentage: [CGFloat] = [0.2, 0.5, 0.6 ,0.9]
     var timeRatio: CGFloat = 0.2  // selected sec / total sec
+
+    // MARK: UI Properties
+    let circleRadius: CGFloat = 25
     var barHeight: CGFloat {
         circleRadius * 2 * 0.8
     }

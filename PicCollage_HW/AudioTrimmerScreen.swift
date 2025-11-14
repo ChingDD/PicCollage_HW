@@ -7,7 +7,14 @@
 
 import SwiftUI
 
-struct AudioTrimmerScreen {
-
-  
+struct AudioTrimmerScreen: View {
+    
+    // MARK: Body
+    var body: some View {
+        VStack {
+           
+        }
+        .background(Color.gray)
+    }
+    
 }
