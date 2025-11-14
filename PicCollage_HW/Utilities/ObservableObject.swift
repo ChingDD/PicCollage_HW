@@ -7,7 +7,8 @@
 
 import Foundation
 
-class ObservableObject <T> {
+// Renamed from ObservableObject to avoid conflict with Combine.ObservableObject
+class ReactiveProperty<T> {
     var value: T {
         didSet {
             listener?(value)
@@ -15,11 +16,11 @@ class ObservableObject <T> {
     }
 
     private var listener: ((T) -> Void)?
-    
+
     init(value: T) {
         self.value = value
     }
-    
+
     func bind(notifyImmediately: Bool = true, _ listener: @escaping ((T) -> Void)) {
         self.listener = listener
         if notifyImmediately {
@@ -28,7 +29,8 @@ class ObservableObject <T> {
     }
 }
 
-class ObservableChangedObject<T: Equatable> {
+// Renamed from ObservableChangedObject for consistency
+class ReactiveChangedProperty<T: Equatable> {
     var value: T {
         didSet {
             if oldValue != value {
@@ -38,11 +40,11 @@ class ObservableChangedObject<T: Equatable> {
     }
 
     private var listener: ((T) -> Void)?
-    
+
     init(value: T) {
         self.value = value
     }
-    
+
     func bind(_ listener: @escaping ((T) -> Void)) {
         self.listener = listener
         self.listener?(value)

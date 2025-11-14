@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct KeyTimeSelectionView: View {
-    // MARK: Property
-    @State private var startTimeRatio: CGFloat = 0.0  // 時間區間的起始點（0.0 到 1.0）
-    var keyTimePercentage: [CGFloat] = [0.2, 0.5, 0.6 ,0.9]
-    var timeRatio: CGFloat = 0.2  // selected sec / total sec
+    // MARK: Properties - Data from parent
+    let keyTimePercentage: [CGFloat]
+    let durationRatio: CGFloat
+    let sectionTimeline: String
+    let currentTimeline: String
+    let sectionPercentage: String
+    let currentPercentage: String
+
+    // MARK: Binding - Two-way data binding
+    @Binding var startTimeRatio: CGFloat
 
     // MARK: UI Properties
     let circleRadius: CGFloat = 25
@@ -55,8 +61,17 @@ struct testView: View {
     }
 }
 
+// MARK: Preview
 #Preview {
-    KeyTimeSelectionView()
+    KeyTimeSelectionView(
+        keyTimePercentage: [0.2, 0.5, 0.6, 0.9],
+        durationRatio: 0.125,  // 10/80 = 0.125
+        sectionTimeline: "Selected: 0:00 - 0:10",
+        currentTimeline: "Current: 0:00",
+        sectionPercentage: "Section: 0.0% - 12.5%",
+        currentPercentage: "Current: 0.0%",
+        startTimeRatio: .constant(0.0)  // Use .constant() for @Binding in preview
+    )
 }
 
 extension KeyTimeSelectionView {
@@ -67,11 +82,11 @@ extension KeyTimeSelectionView {
                 .fontWeight(.heavy)
                 .foregroundStyle(Color.white)
 
-            Text("Selected: 0:00 - 1:00")
+            Text(sectionTimeline)
                 .bold()
                 .foregroundStyle(Color.white)
 
-            Text("Current: 0:00")
+            Text(currentTimeline)
                 .bold()
                 .foregroundStyle(Color.green)
         }
@@ -85,19 +100,20 @@ extension KeyTimeSelectionView {
                 .fontWeight(.heavy)
                 .foregroundStyle(Color.white)
 
-            Text("Selection: 0% - 100%")
+            Text(sectionPercentage)
                 .bold()
                 .foregroundStyle(Color.white)
 
-            Text("Current: 0%")
+            Text(currentPercentage)
                 .bold()
                 .foregroundStyle(Color.green)
         }
     }
 
     var keyTimeBarView: some View {
+        print("startTimeRatio: \(startTimeRatio), durationRatio: \(durationRatio)")
         // Keytime Button
-        GeometryReader { proxy in
+        return GeometryReader { proxy in
             // 藍色 bar 的實際寬度，因為 .padding(.horizontal, 20)
             let barWidth = proxy.size.width - 40
 
@@ -116,8 +132,8 @@ extension KeyTimeSelectionView {
                 Rectangle()
                     .fill(Color.yellow)
                     .cornerRadius(50)
-                    .frame(width: barWidth * timeRatio, height: 20)
-                    .offset(x: -(barWidth / 2) + (barWidth * startTimeRatio) + (timeRatio * barWidth / 2), y: 0)
+                    .frame(width: barWidth * durationRatio, height: 20)
+                    .offset(x: -(barWidth / 2) + (barWidth * startTimeRatio) + (durationRatio * barWidth / 2), y: 0)
 
                 // 動態生成 KeyTime 按鈕
                 keyTimeButtons(barWidth: barWidth)
@@ -139,9 +155,9 @@ extension KeyTimeSelectionView {
                 print("圓形按鈕 \(index) 被點擊了")
                 // 檢查是否超出右邊界
                 let proposedStart = keyTimePercentage[index]
-                if proposedStart + timeRatio > 1.0 {
+                if proposedStart + durationRatio > 1.0 {
                     // 超出邊界，讓黃色 Rectangle 的右邊緣貼齊藍色 bar 的右邊緣
-                    startTimeRatio = 1.0 - timeRatio
+                    startTimeRatio = 1.0 - durationRatio
                 } else {
                     startTimeRatio = proposedStart
                 }

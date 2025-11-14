@@ -110,7 +110,7 @@ class MusicEditorViewController: UIViewController {
             updateWaveformBarStates(scrollView: trimmerView.waveformView.waveScrollView)
         }
 
-        editorViewModel.isPlaying.bind { [weak self] isPlaying in
+        editorViewModel.isPlayingReactive.bind { [weak self] isPlaying in
             guard let self = self else { return }
             trimmerView.updateButtonUI(isPlaying: isPlaying)
         }

@@ -6,18 +6,28 @@
 //
 
 import Foundation
+import Combine
 
-class MusicEditorViewModel {
+class MusicEditorViewModel: ObservableObject {
     // Single source of truth
-    private(set) var state: MusicStateModel
+    @Published private(set) var state: MusicStateModel
 
     // Playback management
     private let playbackManager: PlaybackManager
 
-    // Observable properties for view binding
-    private(set) var onStateUpdated: ObservableObject<Void> = ObservableObject(value: ())
-    private(set) var onWaveformNeedsUpdate: ObservableObject<Void> = ObservableObject(value: ())
-    private(set) var isPlaying: ObservableObject<Bool> = ObservableObject(value: false)
+    // Published properties for SwiftUI/UIKit view binding
+    @Published private(set) var stateVersion: Int = 0 // Triggers UI updates
+    @Published private(set) var waveformNeedsUpdate: Bool = false
+    @Published private(set) var isPlaying: Bool = false
+
+    // Legacy reactive properties for UIKit compatibility
+    private(set) var onStateUpdated: ReactiveProperty<Void> = ReactiveProperty(value: ())
+    private(set) var onWaveformNeedsUpdate: ReactiveProperty<Void> = ReactiveProperty(value: ())
+    private(set) var isPlayingReactive: ReactiveProperty<Bool> = ReactiveProperty(value: false)
+    
+    var keyTimeRatio: [CGFloat] {
+        state.keyTimes.map { $0 / state.totalDuration }
+    }
 
     var sectionTimeline: String {
         let range = state.selectedRange
@@ -47,7 +57,7 @@ class MusicEditorViewModel {
     var durationRatio: CGFloat {
         let duration = state.selectedRange.duration
         let totalDuration = state.totalDuration
-        return (totalDuration / duration)
+        return (duration / totalDuration)
     }
 
     init(state: MusicStateModel, playbackManager: PlaybackManager = PlaybackManager()) {
@@ -104,7 +114,8 @@ class MusicEditorViewModel {
     
     func togglePlayPause() {
         playbackManager.togglePlayPause()
-        isPlaying.value = playbackManager.isPlaying
+        isPlaying = playbackManager.isPlaying
+        isPlayingReactive.value = playbackManager.isPlaying
     }
 
     func resetToStart() {
@@ -171,11 +182,13 @@ class MusicEditorViewModel {
     }
 
     private func notifyStateUpdated() {
-        onStateUpdated.value = ()
+        stateVersion += 1
+        onStateUpdated.value = ()  // For UIKit compatibility
     }
-    
+
     private func notifyWaveformUpdated() {
-        onWaveformNeedsUpdate.value = ()
+        waveformNeedsUpdate.toggle()
+        onWaveformNeedsUpdate.value = ()  // For UIKit compatibility
     }
 
     private func formatTime(_ seconds: CGFloat) -> String {
