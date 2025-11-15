@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 protocol Coordinator: AnyObject {
     var navigationController: UINavigationController { get set }
@@ -29,15 +30,44 @@ class MainCoordinator: Coordinator {
         let amplitudes: [CGFloat] = (0..<300).map { _ in CGFloat.random(in: 0...1) }
         let waveViewModel = WaveformViewModel(amplitudes: amplitudes)
 
+        // Creat AudioTrimmerScreen
+        navigateToTrimmerView(viewModel: editViewModel)
+        
+        /*
         // Creat MusicEditorViewController
         let initViewController = MusicEditorViewController(viewModel: editViewModel, waveformViewModel: waveViewModel)
         initViewController.coordinator = self
-
+        
         // To music edit page
         navigationController.pushViewController(initViewController, animated: false)
+         */
     }
     
-    func toSettingPage(viewModel:MusicEditorViewModel ) {
+    // ============== SwiftUI ==============
+    func navigateToSettings(viewModel:MusicEditorViewModel) {
+        let settingsView = SettingsView(viewModel: viewModel,
+                                        onBack: { [weak self] in
+                // Leave SettingView
+                self?.navigationController.popViewController(animated: true)
+            }
+        )
+        let hostingController = UIHostingController(rootView: settingsView)
+        navigationController.pushViewController(hostingController, animated: true)
+    }
+    
+    func navigateToTrimmerView(viewModel:MusicEditorViewModel) {
+        let audioTrimmerScreen = AudioTrimmerScreen(viewModel: viewModel,
+                                                    onSettingsTapped: { [weak self] in
+            // GO to SettingView
+            self?.navigateToSettings(viewModel: viewModel)
+        })
+        let hostingController = UIHostingController(rootView: audioTrimmerScreen)
+        navigationController.pushViewController(hostingController, animated: true)
+    }
+    // ============== SwiftUI ==============
+    
+    // ============== UIKit ==============
+    func toSettingPage(viewModel:MusicEditorViewModel) {
         let settingPage = SettingViewController(viewModel: viewModel)
         settingPage.coordinator = self
         settingPage.navigationItem.setHidesBackButton(true, animated: false)
@@ -53,6 +83,5 @@ class MainCoordinator: Coordinator {
     func back() {
         navigationController.popViewController(animated: true)
     }
-    
-    
+    // ============== UIKit ==============
 }

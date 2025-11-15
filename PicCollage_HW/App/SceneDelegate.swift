@@ -17,23 +17,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let _ = (scene as? UIWindowScene) else { return }
 
         // Create a UIHostingController to host the SwiftUI view
-        let musicState = MusicStateModel(
-            totalDuration: 80.0,
-            currentTime: 0.0,
-            keyTimes: [16.0, 40.0, 48.0, 72.0],
-            selectedRange: TrimmerRangeModel(start: 0.0, duration: 10.0)
-        )
-        let viewModel = MusicEditorViewModel(state: musicState)
-        let audioTrimmerView = AudioTrimmerScreen(viewModel: viewModel)
-        let hostingController = UIHostingController(rootView: audioTrimmerView)
-
-        // Create and configure the window
-        window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = hostingController
-        window?.makeKeyAndVisible()
+        mainCoordinator = MainCoordinator()
+        window?.rootViewController = mainCoordinator?.navigationController
+        mainCoordinator?.startCoordinator()
 
         // Original UIKit setup (commented out for now)
         // mainCoordinator = MainCoordinator()

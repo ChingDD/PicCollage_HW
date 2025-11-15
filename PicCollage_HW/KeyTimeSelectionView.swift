@@ -40,7 +40,6 @@ struct testView: View {
     var body: some View {
         ZStack {
             Button {
-                print("圓形按鈕被點擊了")
             } label: {
                 Circle()
                     .fill(.red)
@@ -49,7 +48,6 @@ struct testView: View {
             }
 
             Button {
-                print("圓形按鈕被點擊了")
             } label: {
                 Circle()
                     .fill(.blue)
@@ -74,6 +72,7 @@ struct testView: View {
     )
 }
 
+// MARK: SubViews
 extension KeyTimeSelectionView {
     var timelineTextView: some View {
         VStack {
@@ -111,9 +110,8 @@ extension KeyTimeSelectionView {
     }
 
     var keyTimeBarView: some View {
-        print("startTimeRatio: \(startTimeRatio), durationRatio: \(durationRatio)")
         // Keytime Button
-        return GeometryReader { proxy in
+        GeometryReader { proxy in
             // 藍色 bar 的實際寬度，因為 .padding(.horizontal, 20)
             let barWidth = proxy.size.width - 40
 
@@ -152,7 +150,6 @@ extension KeyTimeSelectionView {
         // 動態生成 KeyTime 按鈕
         ForEach(keyTimePercentage.indices, id: \.self) { index in
             Button {
-                print("圓形按鈕 \(index) 被點擊了")
                 // 檢查是否超出右邊界
                 let proposedStart = keyTimePercentage[index]
                 if proposedStart + durationRatio > 1.0 {

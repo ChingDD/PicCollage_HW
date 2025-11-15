@@ -23,37 +23,36 @@ struct SettingsView: View {
 
     // MARK: - Body
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Total Track Length Section
-                    totalDurationSection
+        ScrollView {
+            VStack(spacing: 24) {
+                // Total Track Length Section
+                totalDurationSection
 
-                    // KeyTime Points Section
-                    keyTimesSection
+                // KeyTime Points Section
+                keyTimesSection
 
-                    // Timeline Length Section
-                    timelineLengthSection
+                // Timeline Length Section
+                timelineLengthSection
 
-                    Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                Spacer()
             }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .background(Color(UIColor.systemBackground))
-            .safeAreaInset(edge: .bottom) {
-                actionButtons
-            }
-            .alert(alertTitle, isPresented: $showAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(alertMessage)
-            }
-            .onAppear {
-                loadCurrentSettings()
-            }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+        }
+        .navigationTitle("Settings")
+        .navigationBarTitleDisplayMode(.inline)
+        .background(Color(UIColor.systemBackground))
+        .navigationBarBackButtonHidden()
+        .safeAreaInset(edge: .bottom) {
+            actionButtons
+        }
+        .alert(alertTitle, isPresented: $showAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(alertMessage)
+        }
+        .onAppear {
+            loadCurrentSettings()
         }
     }
 }

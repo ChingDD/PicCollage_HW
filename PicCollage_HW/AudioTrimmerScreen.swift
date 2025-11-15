@@ -8,22 +8,40 @@
 import SwiftUI
 
 struct AudioTrimmerScreen: View {
+    // MARK: ViewModel
     @StateObject var viewModel: MusicEditorViewModel
+    
+    // MARK: Property
     @State private var startTimeRatio: CGFloat = 0.0
-
+    
+    // MARK: Call Back
+    var onSettingsTapped: () -> Void
+    
     // MARK: Body
     var body: some View {
-        VStack {
-            keyTimeSelectionView
+        ZStack() {
+            Color(.black)
+            
+            VStack {
+                keyTimeSelectionView
+            }
+
+            /* maxWidth: .infinity & maxHeight: .infinity
+                -> 給按鈕一個滿版的容器，alignment 才能把按鈕內容推到角落。
+            */
+            settingButton
+                .frame(maxWidth: .infinity,
+                       maxHeight: .infinity,
+                       alignment: .topLeading)
+                .padding(.top, 20)
+                .padding(.leading, 20)
         }
-        .background(Color.black)
         .onChange(of: startTimeRatio) { oldValue, newValue in
             // Convert ratio to absolute time and update ViewModel
             let newTime = newValue * viewModel.state.totalDuration
             viewModel.shiftTime(to: newTime)
         }
     }
-
 }
 
 // MARK: Preview
@@ -35,7 +53,7 @@ struct AudioTrimmerScreen: View {
         selectedRange: TrimmerRangeModel(start: 0.0, duration: 10.0)
     )
     let viewModel = MusicEditorViewModel(state: musicState)
-    AudioTrimmerScreen(viewModel: viewModel)
+    AudioTrimmerScreen(viewModel: viewModel, onSettingsTapped: {})
 }
 
 // MARK: Subviews
@@ -50,5 +68,17 @@ extension AudioTrimmerScreen {
             currentPercentage: viewModel.currentPercentage,
             startTimeRatio: $startTimeRatio
         )
+    }
+    
+    var settingButton: some View {
+        Button(action: {
+            onSettingsTapped()
+        }) {
+            Image(systemName: "gear")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 30, height: 30)
+                .foregroundStyle(Color.white)
+        }
     }
 }

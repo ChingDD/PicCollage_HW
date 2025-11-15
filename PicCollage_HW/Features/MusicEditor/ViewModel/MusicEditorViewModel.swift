@@ -41,11 +41,15 @@ class MusicEditorViewModel: ObservableObject {
     var sectionPercentage: String {
         let startPercentage = formatPercentage(state.selectedRange.start, total: state.totalDuration)
         let endPercentage = formatPercentage(state.selectedRange.end, total: state.totalDuration)
-        return "Section: \(startPercentage) - \(endPercentage)"
+        let output = "Section: \(startPercentage) - \(endPercentage)"
+        print(output)
+        return output
     }
 
     var currentPercentage: String {
-        "Current: \(formatPercentage(state.currentTime, total: state.totalDuration))"
+        let output = "Current: \(formatPercentage(state.currentTime, total: state.totalDuration))"
+        print(output)
+        return output
     }
     
     var progressRatio: CGFloat {
