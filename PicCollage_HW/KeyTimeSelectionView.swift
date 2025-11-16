@@ -37,29 +37,6 @@ struct KeyTimeSelectionView: View {
     }
 }
 
-struct testView: View {
-    var body: some View {
-        ZStack {
-            Button {
-            } label: {
-                Circle()
-                    .fill(.red)
-                    .frame(width: 50, height: 50)
-                    .offset(x: 100) // 想往右移動100，但...
-            }
-
-            Button {
-            } label: {
-                Circle()
-                    .fill(.blue)
-                    .frame(width: 50, height: 50)
-                    .offset(x: 200) // 想往右移動200
-            }
-        }
-        .border(.black)
-    }
-}
-
 // MARK: Preview
 #Preview {
     KeyTimeSelectionView(
@@ -74,6 +51,7 @@ struct testView: View {
     )
 }
 
+// MARK: Subviews
 extension KeyTimeSelectionView {
     var timelineTextView: some View {
         VStack {
