@@ -13,6 +13,8 @@ struct MusicTimelineView: View {
     // Scroll offset tracking
     @State private var scrollOffset: CGFloat = 0
     @State private var progressRatio: CGFloat = 0
+    
+    @Binding var startTimeRatio: CGFloat
 
     var totalDuration: CGFloat
     var selectedRangeDuration: CGFloat
@@ -30,9 +32,6 @@ struct MusicTimelineView: View {
         static let barGap: CGFloat = 3
         static let scrollViewHeight: CGFloat = 60
     }
-
-    // Callbacks
-    var onScrollOffsetChanged: ((CGFloat) -> Void)?
 
     var body: some View {
         VStack {
@@ -85,29 +84,47 @@ extension MusicTimelineView {
     
     // ScrollView
     var scrollViewContainer: some View {
-        StrollViewContainer(totalDuration: totalDuration,
+        StrollViewContainer(startTimeRatio: $startTimeRatio,
+                            totalDuration: totalDuration,
                             selectedRangeDuration: selectedRangeDuration)
         .padding(.bottom)
     }
 }
 
-// MARK: - Waveform Scroll View
+// MARK: - StrollViewContainer
 struct StrollViewContainer: View {
+    @Binding var startTimeRatio: CGFloat
+
     var totalDuration: CGFloat
     var selectedRangeDuration: CGFloat
     
     var body: some View {
         GeometryReader { geometry in
+            let contentSizeWidth = (geometry.size.width *  MusicTimelineView.UIConstants.selectedRangeWidthRatio) / (selectedRangeDuration / totalDuration)
+            
             ZStack(alignment: .center) {
                 // ScrollView
-                ScrollView(.horizontal) {
+                ScrollView(.horizontal, showsIndicators: false) {
                     Color.cyan
-                        .frame(width: (geometry.size.width *  MusicTimelineView.UIConstants.selectedRangeWidthRatio) / (selectedRangeDuration / totalDuration),
+                        .frame(width: contentSizeWidth,
                                height: MusicTimelineView.UIConstants.scrollViewHeight)
                         .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
+                        .background(
+                            GeometryReader { scrollGeo in
+                                Color.clear
+                                    .preference(key: ScrollOffsetPreferenceKey.self,
+                                              value: scrollGeo.frame(in: .named("scroll")).minX)
+                            }
+                        )
+                }
+                .coordinateSpace(name: "scroll")
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+                    let newRatio = updateStartTimeRatio(scrollOffset: offset, contentSizeWidth: contentSizeWidth)
+                    startTimeRatio = newRatio
                 }
                 .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight)
                 .background(Color.yellow)
+                
                 
                 // SelectedRangeView
                 Rectangle()
@@ -130,10 +147,19 @@ struct StrollViewContainer: View {
         }
         .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight / MusicTimelineView.UIConstants.scrollViewHeightRatio)
     }
+    
+    private func updateStartTimeRatio(scrollOffset: CGFloat, contentSizeWidth: CGFloat) -> CGFloat {
+        let ratio = calculateRatio(from: scrollOffset, contentSizeWidth: contentSizeWidth)
+        return ratio
+    }
+
+    private func calculateRatio(from offset: CGFloat, contentSizeWidth: CGFloat) -> CGFloat {
+        let ratio = max(0, min(1, -offset / contentSizeWidth))
+        return ratio
+    }
 }
 
 // MARK: - Preference Key for Scroll Offset
-
 struct ScrollOffsetPreferenceKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
 
@@ -145,5 +171,5 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 // MARK: - Preview
 
 #Preview {
-    MusicTimelineView(totalDuration: 80, selectedRangeDuration: 10)
+//    MusicTimelineView(startTimeRatio:, totalDuration: 80, selectedRangeDuration: 10)
 }

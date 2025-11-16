@@ -17,7 +17,7 @@ struct KeyTimeSelectionView: View {
     let currentPercentage: String
 
     // MARK: Binding - Two-way data binding
-    @Binding var startTimeRatio: CGFloat
+    @Binding var startTimeRatio: CGFloat    // start / totalDuration
 
     // MARK: UI Properties
     let circleRadius: CGFloat = 25

@@ -84,6 +84,10 @@ extension AudioTrimmerScreen {
     }
     
     var musicTimelineView: some View {
-        MusicTimelineView(totalDuration: 80, selectedRangeDuration: 10)
+        MusicTimelineView(
+            startTimeRatio: $startTimeRatio,
+            totalDuration: viewModel.state.totalDuration,
+            selectedRangeDuration: viewModel.state.selectedRange.duration
+        )
     }
 }
