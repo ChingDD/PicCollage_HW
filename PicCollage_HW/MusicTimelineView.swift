@@ -14,7 +14,9 @@ struct MusicTimelineView: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var progressRatio: CGFloat = 0
     
+    // MARK: Binding - Two-way data binding
     @Binding var startTimeRatio: CGFloat
+    @Binding var allowUpdate: Bool
 
     var totalDuration: CGFloat
     var selectedRangeDuration: CGFloat
@@ -85,6 +87,7 @@ extension MusicTimelineView {
     // ScrollView
     var scrollViewContainer: some View {
         StrollViewContainer(startTimeRatio: $startTimeRatio,
+                            allowUpdate: $allowUpdate,
                             totalDuration: totalDuration,
                             selectedRangeDuration: selectedRangeDuration)
         .padding(.bottom)
@@ -93,34 +96,75 @@ extension MusicTimelineView {
 
 // MARK: - StrollViewContainer
 struct StrollViewContainer: View {
+    @State private var isDragging: Bool = false
+    @State private var position = ScrollPosition(edge: .top)
+    @State private var timer: Timer?
+    
     @Binding var startTimeRatio: CGFloat
+    @Binding var allowUpdate: Bool
 
     var totalDuration: CGFloat
     var selectedRangeDuration: CGFloat
     
     var body: some View {
         GeometryReader { geometry in
-            let contentSizeWidth = (geometry.size.width *  MusicTimelineView.UIConstants.selectedRangeWidthRatio) / (selectedRangeDuration / totalDuration)
-            
+            let durationRatio = selectedRangeDuration / totalDuration
+            let contentSizeWidth = (geometry.size.width *  MusicTimelineView.UIConstants.selectedRangeWidthRatio) / durationRatio
+
             ZStack(alignment: .center) {
                 // ScrollView
-                ScrollView(.horizontal, showsIndicators: false) {
-                    Color.cyan
-                        .frame(width: contentSizeWidth,
-                               height: MusicTimelineView.UIConstants.scrollViewHeight)
-                        .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
-                        .background(
-                            GeometryReader { scrollGeo in
-                                Color.clear
-                                    .preference(key: ScrollOffsetPreferenceKey.self,
-                                              value: scrollGeo.frame(in: .named("scroll")).minX)
-                            }
-                        )
-                }
-                .coordinateSpace(name: "scroll")
-                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
-                    let newRatio = updateStartTimeRatio(scrollOffset: offset, contentSizeWidth: contentSizeWidth)
-                    startTimeRatio = newRatio
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        Color.cyan
+                            .frame(width: contentSizeWidth,
+                                   height: MusicTimelineView.UIConstants.scrollViewHeight)
+                            .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
+                            .background(
+                                GeometryReader { scrollGeo in
+                                    Color.clear
+                                        .preference(key: ScrollOffsetPreferenceKey.self,
+                                                  value: scrollGeo.frame(in: .named("scroll")).minX)
+                                }
+                            )
+                            .id("scrollContent")
+                    }
+                    .scrollPosition($position)
+                    .coordinateSpace(name: "scroll")
+                    // When user is dragging scrollView，update data actively
+                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+                        guard isDragging else { return }
+                        
+                        // reset timer
+                        self.timer?.invalidate()
+                        self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                            // When finish dragging，reset flag
+                            isDragging = false
+                        }
+                        
+                        var newRatio = updateStartTimeRatio(scrollOffset: offset, contentSizeWidth: contentSizeWidth)
+
+                        if newRatio + durationRatio > 1.0 {
+                            newRatio = 1.0 - durationRatio
+                        }
+
+                        startTimeRatio = newRatio
+                    }
+                    // Monitor dragging gesture
+                    .simultaneousGesture(
+                        DragGesture()
+                            .onChanged { _ in isDragging = true }
+                    )
+
+                    .onChange(of: startTimeRatio) { oldValue, newValue in
+                        guard allowUpdate else { return }
+                        allowUpdate = false
+
+                        let targetOffset = newValue * contentSizeWidth
+
+                        withAnimation(.easeOut(duration: 0.2)) {
+                            position = ScrollPosition(x: targetOffset)
+                        }
+                    }
                 }
                 .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight)
                 .background(Color.yellow)

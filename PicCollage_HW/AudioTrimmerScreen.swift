@@ -13,6 +13,7 @@ struct AudioTrimmerScreen: View {
     
     // MARK: Property
     @State private var startTimeRatio: CGFloat = 0.0
+    @State private var allowUpdate = false  //  whether the scrollView’s position should be programmatically updated
     
     // MARK: Call Back
     var onSettingsTapped: () -> Void
@@ -28,7 +29,7 @@ struct AudioTrimmerScreen: View {
             }
 
             /* maxWidth: .infinity & maxHeight: .infinity
-                -> 給按鈕一個滿版的容器，alignment 才能把按鈕內容推到角落。
+                -> Wrap the button in a full-sized container, so the alignment can position it in the corner.
             */
             settingButton
                 .frame(maxWidth: .infinity,
@@ -67,7 +68,8 @@ extension AudioTrimmerScreen {
             currentTimeline: viewModel.currentTimeline,
             sectionPercentage: viewModel.sectionPercentage,
             currentPercentage: viewModel.currentPercentage,
-            startTimeRatio: $startTimeRatio
+            startTimeRatio: $startTimeRatio,
+            allowUpdate: $allowUpdate
         )
     }
     
@@ -86,6 +88,7 @@ extension AudioTrimmerScreen {
     var musicTimelineView: some View {
         MusicTimelineView(
             startTimeRatio: $startTimeRatio,
+            allowUpdate: $allowUpdate,
             totalDuration: viewModel.state.totalDuration,
             selectedRangeDuration: viewModel.state.selectedRange.duration
         )

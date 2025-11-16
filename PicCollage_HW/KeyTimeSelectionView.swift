@@ -18,7 +18,8 @@ struct KeyTimeSelectionView: View {
 
     // MARK: Binding - Two-way data binding
     @Binding var startTimeRatio: CGFloat    // start / totalDuration
-
+    @Binding var allowUpdate: Bool
+    
     // MARK: UI Properties
     let circleRadius: CGFloat = 25
     var barHeight: CGFloat {
@@ -68,7 +69,8 @@ struct testView: View {
         currentTimeline: "Current: 0:00",
         sectionPercentage: "Section: 0.0% - 12.5%",
         currentPercentage: "Current: 0.0%",
-        startTimeRatio: .constant(0.0)  // Use .constant() for @Binding in preview
+        startTimeRatio: .constant(0.0),
+        allowUpdate: .constant(true)  // Use .constant() for @Binding in preview
     )
 }
 
@@ -149,6 +151,7 @@ extension KeyTimeSelectionView {
         // 動態生成 KeyTime 按鈕
         ForEach(keyTimePercentage.indices, id: \.self) { index in
             Button {
+                allowUpdate = true
                 // 檢查是否超出右邊界
                 let proposedStart = keyTimePercentage[index]
                 if proposedStart + durationRatio > 1.0 {
