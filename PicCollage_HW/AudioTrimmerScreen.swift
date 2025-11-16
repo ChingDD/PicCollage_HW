@@ -24,6 +24,7 @@ struct AudioTrimmerScreen: View {
             
             VStack {
                 keyTimeSelectionView
+                musicTimelineView
             }
 
             /* maxWidth: .infinity & maxHeight: .infinity
@@ -80,5 +81,9 @@ extension AudioTrimmerScreen {
                 .frame(width: 30, height: 30)
                 .foregroundStyle(Color.white)
         }
+    }
+    
+    var musicTimelineView: some View {
+        MusicTimelineView(totalDuration: 80, selectedRangeDuration: 10)
     }
 }

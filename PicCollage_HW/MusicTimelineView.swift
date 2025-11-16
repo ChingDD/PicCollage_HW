@@ -10,12 +10,16 @@ import SwiftUI
 // MARK: - Main Timeline View
 
 struct MusicTimelineView: View {
-    var viewModel: WaveformViewModel
-
     // Scroll offset tracking
     @State private var scrollOffset: CGFloat = 0
     @State private var progressRatio: CGFloat = 0
 
+    var totalDuration: CGFloat
+    var selectedRangeDuration: CGFloat
+    
+    // Button
+    var isPlaying: Bool = false
+    
     // UI Constants
     enum UIConstants {
         static let selectedRangeViewBorderWidth: CGFloat = 3
@@ -24,48 +28,20 @@ struct MusicTimelineView: View {
         static let scrollViewHeightRatio: CGFloat = 1/2.5
         static let barWidth: CGFloat = 3
         static let barGap: CGFloat = 3
+        static let scrollViewHeight: CGFloat = 60
     }
 
     // Callbacks
     var onScrollOffsetChanged: ((CGFloat) -> Void)?
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Background
-                Color.black.ignoresSafeArea()
-
-                VStack {
-                    Spacer()
-
-                    // Waveform Container
-                    ZStack(alignment: .center) {
-                        // Scrollable Waveform Canvas
-                        WaveformScrollView(
-                            viewModel: viewModel,
-                            scrollOffset: $scrollOffset,
-                            geometry: geometry,
-                            onScrollChanged: { offset in
-                                onScrollOffsetChanged?(offset)
-                            }
-                        )
-                        .frame(height: geometry.size.height * UIConstants.scrollViewHeightRatio)
-
-                        // Selected Range View with Gradient Border
-                        SelectedRangeView(
-                            progressRatio: progressRatio,
-                            borderWidth: UIConstants.selectedRangeViewBorderWidth
-                        )
-                        .frame(
-                            width: geometry.size.width * UIConstants.selectedRangeWidthRatio,
-                            height: geometry.size.height * UIConstants.scrollViewHeightRatio
-                        )
-                    }
-
-                    Spacer()
-                }
-            }
+        VStack {
+            // ScrollView
+            scrollViewContainer
+            // Button
+            buttons
         }
+        .background(Color.darkGray)
     }
 
     // Public methods to match UIKit API
@@ -78,96 +54,81 @@ struct MusicTimelineView: View {
     }
 }
 
+// MARK: Subviews
+extension MusicTimelineView {
+    // Button
+    var buttons: some View {
+        HStack {
+            // Playing Button
+            Button(action: {
+                
+            }) {
+                Text(isPlaying ? "Pause" : "Play")
+                    .foregroundStyle(Color.white)
+            }
+            .buttonStyle(.borderedProminent)
+            .cornerRadius(5)
+            .padding(.trailing)
+            
+            // Playing Button
+            Button(action: {
+                
+            }) {
+                Text("reset")
+                    .foregroundStyle(Color.white)
+            }
+            .background(Color.gray)
+            .buttonStyle(.bordered)
+            .cornerRadius(5)
+        }
+    }
+    
+    // ScrollView
+    var scrollViewContainer: some View {
+        StrollViewContainer(totalDuration: totalDuration,
+                            selectedRangeDuration: selectedRangeDuration)
+        .padding(.bottom)
+    }
+}
+
 // MARK: - Waveform Scroll View
-
-struct WaveformScrollView: View {
-    var viewModel: WaveformViewModel
-    @Binding var scrollOffset: CGFloat
-    let geometry: GeometryProxy
-    let onScrollChanged: ((CGFloat) -> Void)?
-
-    @State private var canvasWidth: CGFloat = 0
-
+struct StrollViewContainer: View {
+    var totalDuration: CGFloat
+    var selectedRangeDuration: CGFloat
+    
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: MusicTimelineView.UIConstants.barGap) {
-                    ForEach(viewModel.bars.indices, id: \.self) { index in
-                        WaveformBarView(barState: viewModel.bars[index])
-                            .id(index)
-                    }
+        GeometryReader { geometry in
+            ZStack(alignment: .center) {
+                // ScrollView
+                ScrollView(.horizontal) {
+                    Color.cyan
+                        .frame(width: (geometry.size.width *  MusicTimelineView.UIConstants.selectedRangeWidthRatio) / (selectedRangeDuration / totalDuration),
+                               height: MusicTimelineView.UIConstants.scrollViewHeight)
+                        .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
                 }
-                .frame(height: geometry.size.height * MusicTimelineView.UIConstants.scrollViewHeightRatio)
-                .padding(.horizontal, geometry.size.width * MusicTimelineView.UIConstants.contentInsetRatio)
-                .background(
-                    GeometryReader { scrollGeometry in
-                        Color.clear.preference(
-                            key: ScrollOffsetPreferenceKey.self,
-                            value: scrollGeometry.frame(in: .named("waveformScrollView")).origin.x
-                        )
-                    }
-                )
-            }
-            .coordinateSpace(name: "waveformScrollView")
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { value in
-                let newOffset = -value
-                if scrollOffset != newOffset {
-                    scrollOffset = newOffset
-                    onScrollChanged?(newOffset)
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Selected Range View
-
-struct SelectedRangeView: View {
-    let progressRatio: CGFloat
-    let borderWidth: CGFloat
-
-    var body: some View {
-        ZStack(alignment: .leading) {
-            // Background with semi-transparent gray
-            Rectangle()
-                .fill(Color(red: 153/255, green: 152/255, blue: 156/255, opacity: 0.3))
-
-            // Progress View (green overlay)
-            GeometryReader { geometry in
+                .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight)
+                .background(Color.yellow)
+                
+                // SelectedRangeView
                 Rectangle()
-                    .fill(Color.green)
-                    .frame(width: max(0, (geometry.size.width - borderWidth * 2) * progressRatio))
-                    .offset(x: borderWidth, y: borderWidth)
+                    .fill(.clear)
+                    .frame(width: geometry.size.width * MusicTimelineView.UIConstants.selectedRangeWidthRatio,
+                           height: MusicTimelineView.UIConstants.scrollViewHeight + MusicTimelineView.UIConstants.selectedRangeViewBorderWidth * 2)
+                    .overlay {
+                        // Gradient Border (Orange → Purple)
+                        RoundedRectangle(cornerRadius: 5)
+                            .strokeBorder(
+                                LinearGradient(gradient: Gradient(colors: [.orange, .purple]),
+                                               startPoint: .leading,
+                                               endPoint: .trailing),
+                                lineWidth: MusicTimelineView.UIConstants.selectedRangeViewBorderWidth
+                            )
+                    }
             }
-            .padding(.vertical, borderWidth)
+            .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight / MusicTimelineView.UIConstants.scrollViewHeightRatio)
+            .background(Color.black)
         }
-        .overlay(
-            // Gradient Border (Orange → Purple)
-            RoundedRectangle(cornerRadius: 0)
-                .strokeBorder(
-                    LinearGradient(
-                        gradient: Gradient(colors: [.orange, .purple]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    ),
-                    lineWidth: borderWidth
-                )
-        )
-    }
-}
-
-// MARK: - Waveform Bar View
-
-struct WaveformBarView: View {
-    let barState: WaveformBarState
-
-    var body: some View {
-        Rectangle()
-            .fill(Color(white: barState.brightness))
-            .frame(width: MusicTimelineView.UIConstants.barWidth)
-            .scaleEffect(x: 1.0, y: barState.scale, anchor: .center)
-            .animation(.easeInOut(duration: 0.1), value: barState.scale)
-            .animation(.easeInOut(duration: 0.1), value: barState.brightness)
+        .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight / MusicTimelineView.UIConstants.scrollViewHeightRatio)
     }
 }
 
@@ -184,25 +145,5 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 // MARK: - Preview
 
 #Preview {
-    // Create mock view model for preview
-    let viewModel = WaveformViewModel(amplitudes: (0..<300).map { _ in CGFloat.random(in: 0...1) })
-
-    // Add some sample bars
-//    for _ in 0..<100 {
-//        viewModel.bars.append(
-//            WaveformBarState(
-//                amplitude: Double.random(in: 0.3...1.0),
-//                scale: 1.0,
-//                brightness: 0.7
-//            )
-//        )
-//    }
-
-    MusicTimelineView(
-        viewModel: viewModel,
-        onScrollOffsetChanged: { offset in
-            print("Scroll offset: \(offset)")
-        }
-    )
-    .frame(height: 300)
+    MusicTimelineView(totalDuration: 80, selectedRangeDuration: 10)
 }

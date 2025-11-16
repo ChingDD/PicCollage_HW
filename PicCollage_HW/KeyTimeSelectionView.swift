@@ -72,7 +72,6 @@ struct testView: View {
     )
 }
 
-// MARK: SubViews
 extension KeyTimeSelectionView {
     var timelineTextView: some View {
         VStack {
