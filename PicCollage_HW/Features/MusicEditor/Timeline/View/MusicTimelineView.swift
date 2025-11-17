@@ -75,7 +75,7 @@ extension MusicTimelineView {
     
     // ScrollView
     var scrollViewContainer: some View {
-        StrollViewContainer(startTimeRatio: $startTimeRatio,
+        ScrollViewContainer(startTimeRatio: $startTimeRatio,
                             allowUpdate: $allowUpdate,
                             currentTime: $currentTime,
                             totalDuration: totalDuration,

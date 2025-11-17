@@ -13,9 +13,10 @@ class MusicEditorViewModel: ObservableObject {
     @Published private(set) var state: MusicStateModel
 
     // Published properties for SwiftUI/UIKit view binding
-    @Published private(set) var stateVersion: Int = 0 // Triggers UI updates
-    @Published private(set) var waveformNeedsUpdate: Bool = false
     @Published private(set) var isPlaying: Bool = false
+    
+    // Playback management
+    private let playbackManager: PlaybackManager
     
     var keyTimeRatio: [CGFloat] {
         state.keyTimes.map { $0 / state.totalDuration }
@@ -29,8 +30,6 @@ class MusicEditorViewModel: ObservableObject {
     var currentTimeline: String {
         "Current: \(formatTime(state.currentTime))"
     }
-    // Playback management
-    private let playbackManager: PlaybackManager
 
     var sectionPercentage: String {
         let startPercentage = formatPercentage(state.selectedRange.start, total: state.totalDuration)

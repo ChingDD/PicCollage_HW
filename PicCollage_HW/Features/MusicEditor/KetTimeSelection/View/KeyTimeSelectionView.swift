@@ -125,14 +125,13 @@ extension KeyTimeSelectionView {
            2. + barWidth * keyTimePercentage[i]：根據百分比計算位置
          */
 
-        // 動態生成 KeyTime 按鈕
+        // Generate KeyTime Buttons
         ForEach(keyTimePercentage.indices, id: \.self) { index in
             Button {
                 allowUpdate = true
-                // 檢查是否超出右邊界
+                // Check border
                 let proposedStart = keyTimePercentage[index]
                 if proposedStart + durationRatio > 1.0 {
-                    // 超出邊界，讓黃色 Rectangle 的右邊緣貼齊藍色 bar 的右邊緣
                     startTimeRatio = 1.0 - durationRatio
                 } else {
                     startTimeRatio = proposedStart
@@ -142,6 +141,7 @@ extension KeyTimeSelectionView {
                     .fill(Color.pink)
                     .frame(width: circleRadius, height: circleRadius)
             }
+            .buttonStyle(.plain)
             .offset(x: -barWidth / 2 + barWidth * keyTimePercentage[index], y: 0)
         }
     }
