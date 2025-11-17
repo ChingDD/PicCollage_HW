@@ -88,20 +88,6 @@ struct StrollViewContainer: View {
                         position = ScrollPosition(x: targetOffset)
                     }
                 }
-                .onAppear {
-                    // Generate waveform states only once when view appears
-                    if waveformStates.isEmpty {
-                        waveformStates = generateWaveformStates(for: contentSizeWidth)
-                        lastContentWidth = contentSizeWidth
-                    }
-                }
-                .onChange(of: contentSizeWidth) { oldWidth, newWidth in
-                    // Regenerate only when content width changes
-                    if abs(newWidth - lastContentWidth) > 0.1 {
-                        waveformStates = generateWaveformStates(for: newWidth)
-                        lastContentWidth = newWidth
-                    }
-                }
                 .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight)
             
                 // SelectedRangeView

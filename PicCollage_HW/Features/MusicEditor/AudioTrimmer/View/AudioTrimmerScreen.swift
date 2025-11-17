@@ -51,12 +51,6 @@ struct AudioTrimmerScreen: View {
                 viewModel.togglePlayPause()
             }
         }
-//        .onReceive(viewModel.$isPlaying) { newValue in
-//            // Sync ViewModel's isPlaying back to local state
-//            if newValue != isPlaying {
-//                isPlaying = newValue
-//            }
-//        }
         .onReceive(viewModel.$state) { newState in
             // Update currentTime from ViewModel
             currentTime = newState.currentTime
