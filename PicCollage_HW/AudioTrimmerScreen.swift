@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AudioTrimmerScreen: View {
     // MARK: ViewModel
-    @StateObject var viewModel: MusicEditorViewModel
+    @ObservedObject var viewModel: MusicEditorViewModel
     
     // MARK: Property
     @State private var startTimeRatio: CGFloat = 0.0
