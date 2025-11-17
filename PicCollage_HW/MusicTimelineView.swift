@@ -13,16 +13,16 @@ struct MusicTimelineView: View {
     // Scroll offset tracking
     @State private var scrollOffset: CGFloat = 0
     @State private var progressRatio: CGFloat = 0
-    
+
     // MARK: Binding - Two-way data binding
     @Binding var startTimeRatio: CGFloat
     @Binding var allowUpdate: Bool
+    @Binding var currentTime: CGFloat
+    @Binding var isPlaying: Bool
 
     var totalDuration: CGFloat
     var selectedRangeDuration: CGFloat
-    
-    // Button
-    var isPlaying: Bool = false
+    var onResetTapped: () -> Void
     
     // UI Constants
     enum UIConstants {
@@ -62,7 +62,7 @@ extension MusicTimelineView {
         HStack {
             // Playing Button
             Button(action: {
-                
+                isPlaying.toggle()
             }) {
                 Text(isPlaying ? "Pause" : "Play")
                     .foregroundStyle(Color.white)
@@ -70,10 +70,10 @@ extension MusicTimelineView {
             .buttonStyle(.borderedProminent)
             .cornerRadius(5)
             .padding(.trailing)
-            
-            // Playing Button
+
+            // Reset Button
             Button(action: {
-                
+                onResetTapped()
             }) {
                 Text("reset")
                     .foregroundStyle(Color.white)
@@ -88,23 +88,34 @@ extension MusicTimelineView {
     var scrollViewContainer: some View {
         StrollViewContainer(startTimeRatio: $startTimeRatio,
                             allowUpdate: $allowUpdate,
+                            currentTime: $currentTime,
                             totalDuration: totalDuration,
                             selectedRangeDuration: selectedRangeDuration)
         .padding(.bottom)
     }
 }
 
+
 // MARK: - StrollViewContainer
 struct StrollViewContainer: View {
     @State private var isDragging: Bool = false
-    @State private var position = ScrollPosition(edge: .top)
+    @State private var position = ScrollPosition()
     @State private var timer: Timer?
     
     @Binding var startTimeRatio: CGFloat
     @Binding var allowUpdate: Bool
+    @Binding var currentTime: CGFloat
 
     var totalDuration: CGFloat
     var selectedRangeDuration: CGFloat
+    
+    // Computed Properties
+    var start: CGFloat {
+        startTimeRatio * totalDuration
+    }
+    var end: CGFloat {
+        start + selectedRangeDuration
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -113,63 +124,60 @@ struct StrollViewContainer: View {
 
             ZStack(alignment: .center) {
                 // ScrollView
-                ScrollViewReader { proxy in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        Color.cyan
-                            .frame(width: contentSizeWidth,
-                                   height: MusicTimelineView.UIConstants.scrollViewHeight)
-                            .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
-                            .background(
-                                GeometryReader { scrollGeo in
-                                    Color.clear
-                                        .preference(key: ScrollOffsetPreferenceKey.self,
-                                                  value: scrollGeo.frame(in: .named("scroll")).minX)
-                                }
-                            )
-                            .id("scrollContent")
+                ScrollView(.horizontal, showsIndicators: false) {
+                    Color.cyan
+                        .frame(width: contentSizeWidth,
+                               height: MusicTimelineView.UIConstants.scrollViewHeight)
+                        .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
+                        .background(
+                            GeometryReader { scrollGeo in
+                                Color.clear
+                                    .preference(key: ScrollOffsetPreferenceKey.self,
+                                              value: scrollGeo.frame(in: .named("scroll")).minX)
+                            }
+                        )
+                        .id("scrollContent")
+                }
+                .scrollPosition($position)
+                .coordinateSpace(name: "scroll")
+                // When user is dragging scrollView，update data actively
+                .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
+                    guard isDragging else { return }
+                    
+                    // reset timer
+                    self.timer?.invalidate()
+                    self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                        // When finish dragging，reset flag
+                        isDragging = false
                     }
-                    .scrollPosition($position)
-                    .coordinateSpace(name: "scroll")
-                    // When user is dragging scrollView，update data actively
-                    .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
-                        guard isDragging else { return }
-                        
-                        // reset timer
-                        self.timer?.invalidate()
-                        self.timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                            // When finish dragging，reset flag
-                            isDragging = false
-                        }
-                        
-                        var newRatio = updateStartTimeRatio(scrollOffset: offset, contentSizeWidth: contentSizeWidth)
+                    
+                    var newRatio = updateStartTimeRatio(scrollOffset: offset, contentSizeWidth: contentSizeWidth)
 
-                        if newRatio + durationRatio > 1.0 {
-                            newRatio = 1.0 - durationRatio
-                        }
-
-                        startTimeRatio = newRatio
+                    if newRatio + durationRatio > 1.0 {
+                        newRatio = 1.0 - durationRatio
                     }
-                    // Monitor dragging gesture
-                    .simultaneousGesture(
-                        DragGesture()
-                            .onChanged { _ in isDragging = true }
-                    )
 
-                    .onChange(of: startTimeRatio) { oldValue, newValue in
-                        guard allowUpdate else { return }
-                        allowUpdate = false
+                    startTimeRatio = newRatio
+                }
+                // Monitor dragging gesture
+                .simultaneousGesture(
+                    DragGesture()
+                        .onChanged { _ in isDragging = true }
+                )
 
-                        let targetOffset = newValue * contentSizeWidth
+                .onChange(of: startTimeRatio) { oldValue, newValue in
+                    guard allowUpdate else { return }
+                    allowUpdate = false
 
-                        withAnimation(.easeOut(duration: 0.2)) {
-                            position = ScrollPosition(x: targetOffset)
-                        }
+                    let targetOffset = newValue * contentSizeWidth
+
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        position = ScrollPosition(x: targetOffset)
                     }
                 }
                 .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight)
                 .background(Color.yellow)
-                
-                
+            
                 // SelectedRangeView
                 Rectangle()
                     .fill(.clear)
@@ -184,6 +192,18 @@ struct StrollViewContainer: View {
                                                endPoint: .trailing),
                                 lineWidth: MusicTimelineView.UIConstants.selectedRangeViewBorderWidth
                             )
+                        
+                        // Progress
+                        GeometryReader { progressGeo in
+                            let maxWidth = progressGeo.size.width
+                            let progressRatio = min(max((currentTime - start) / selectedRangeDuration, 0), 1)
+
+                            RoundedRectangle(cornerRadius: 3)
+                                .fill(Color.green)
+                                .frame(width: maxWidth * progressRatio,
+                                       height: MusicTimelineView.UIConstants.scrollViewHeight)
+                        }
+                        .padding(MusicTimelineView.UIConstants.selectedRangeViewBorderWidth)
                     }
             }
             .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight / MusicTimelineView.UIConstants.scrollViewHeightRatio)

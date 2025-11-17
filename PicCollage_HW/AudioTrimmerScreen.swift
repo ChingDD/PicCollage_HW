@@ -13,7 +13,9 @@ struct AudioTrimmerScreen: View {
     
     // MARK: Property
     @State private var startTimeRatio: CGFloat = 0.0
-    @State private var allowUpdate = false  //  whether the scrollView’s position should be programmatically updated
+    @State private var allowUpdate = false  //  whether the scrollView's position should be programmatically updated
+    @State private var currentTime: CGFloat = 0.0
+    @State private var isPlaying: Bool = false
     
     // MARK: Call Back
     var onSettingsTapped: () -> Void
@@ -42,6 +44,22 @@ struct AudioTrimmerScreen: View {
             // Convert ratio to absolute time and update ViewModel
             let newTime = newValue * viewModel.state.totalDuration
             viewModel.shiftTime(to: newTime)
+        }
+        .onChange(of: isPlaying) { oldValue, newValue in
+            // Sync isPlaying state with ViewModel
+            if newValue != viewModel.isPlaying {
+                viewModel.togglePlayPause()
+            }
+        }
+//        .onReceive(viewModel.$isPlaying) { newValue in
+//            // Sync ViewModel's isPlaying back to local state
+//            if newValue != isPlaying {
+//                isPlaying = newValue
+//            }
+//        }
+        .onReceive(viewModel.$state) { newState in
+            // Update currentTime from ViewModel
+            currentTime = newState.currentTime
         }
     }
 }
@@ -89,8 +107,13 @@ extension AudioTrimmerScreen {
         MusicTimelineView(
             startTimeRatio: $startTimeRatio,
             allowUpdate: $allowUpdate,
+            currentTime: $currentTime,
+            isPlaying: $isPlaying,
             totalDuration: viewModel.state.totalDuration,
-            selectedRangeDuration: viewModel.state.selectedRange.duration
+            selectedRangeDuration: viewModel.state.selectedRange.duration,
+            onResetTapped: {
+                viewModel.resetToStart()
+            }
         )
     }
 }

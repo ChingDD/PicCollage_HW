@@ -119,7 +119,7 @@ class MusicEditorViewModel: ObservableObject {
     func togglePlayPause() {
         playbackManager.togglePlayPause()
         isPlaying = playbackManager.isPlaying
-        isPlayingReactive.value = playbackManager.isPlaying
+//        isPlayingReactive.value = playbackManager.isPlaying
     }
 
     func resetToStart() {
