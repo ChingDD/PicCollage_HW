@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct WaveformContentView: View {
-    let barStates: [WaveformBarState]
+    // MARK: Properties - Data from parent
+    let barStates: [WaveformBarData]
     
+    // MARK: UI Properties
     private enum UIConstants {
         static let lineWidth: CGFloat = 3
         static let gap: CGFloat = 3
@@ -17,6 +19,7 @@ struct WaveformContentView: View {
         static let maxHeightRatio: CGFloat = 0.6
     }
 
+    // MARK: Body
     var body: some View {
         HStack(alignment: .center, spacing: UIConstants.gap) {
             ForEach(barStates.indices, id: \.self) { i in
@@ -32,11 +35,9 @@ struct WaveformContentView: View {
     }
 }
 
-extension WaveformContentView {
-    func calculateWidth(barCount: Int) -> CGFloat {
-        CGFloat(barCount) * (UIConstants.lineWidth + UIConstants.gap) + UIConstants.lineWidth
-    }
 
+// MARK: Get ContentView Height
+extension WaveformContentView {
     func calculateBarHeight(amplitude: CGFloat, containerHeight: CGFloat) -> CGFloat {
         let ratio = UIConstants.minHeightRatio
                  + (UIConstants.maxHeightRatio - UIConstants.minHeightRatio) * amplitude

@@ -72,7 +72,6 @@ extension KeyTimeSelectionView {
 
     var keyTimeTextView: some View {
         VStack {
-            // Timeline Text
             // KeyTime Text
             Text("KeyTime Selection")
                 .fontWeight(.heavy)

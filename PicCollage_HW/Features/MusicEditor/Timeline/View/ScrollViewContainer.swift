@@ -1,107 +1,17 @@
 //
-//  MusicTimelineView.swift
+//  ScrollViewContainer.swift
 //  PicCollage_HW
 //
-//  Created by 林仲景 on 2025/11/11.
+//  Created by 林仲景 on 2025/11/17.
 //
 
 import SwiftUI
 
-// MARK: - Main Timeline View
-
-struct MusicTimelineView: View {
-    // Scroll offset tracking
-    @State private var scrollOffset: CGFloat = 0
-    @State private var progressRatio: CGFloat = 0
-
-    // MARK: Binding - Two-way data binding
-    @Binding var startTimeRatio: CGFloat
-    @Binding var allowUpdate: Bool
-    @Binding var currentTime: CGFloat
-    @Binding var isPlaying: Bool
-
-    var totalDuration: CGFloat
-    var selectedRangeDuration: CGFloat
-    var onResetTapped: () -> Void
-    
-    // UI Constants
-    enum UIConstants {
-        static let selectedRangeViewBorderWidth: CGFloat = 3
-        static let contentInsetRatio: CGFloat = 0.25          // 25%
-        static let selectedRangeWidthRatio: CGFloat = 0.5     // 50%
-        static let scrollViewHeightRatio: CGFloat = 1/2.5
-        static let barWidth: CGFloat = 3
-        static let barGap: CGFloat = 3
-        static let scrollViewHeight: CGFloat = 60
-    }
-
-    var body: some View {
-        VStack {
-            // ScrollView
-            scrollViewContainer
-            // Button
-            buttons
-        }
-        .background(Color.darkGray)
-    }
-
-    // Public methods to match UIKit API
-    func setScrollOffset(_ offsetX: CGFloat) {
-        scrollOffset = offsetX
-    }
-
-    func updateProgressView(ratio: CGFloat) {
-        progressRatio = ratio
-    }
-}
-
-// MARK: Subviews
-extension MusicTimelineView {
-    // Button
-    var buttons: some View {
-        HStack {
-            // Playing Button
-            Button(action: {
-                isPlaying.toggle()
-            }) {
-                Text(isPlaying ? "Pause" : "Play")
-                    .foregroundStyle(Color.white)
-            }
-            .buttonStyle(.borderedProminent)
-            .cornerRadius(5)
-            .padding(.trailing)
-
-            // Reset Button
-            Button(action: {
-                onResetTapped()
-            }) {
-                Text("reset")
-                    .foregroundStyle(Color.white)
-            }
-            .background(Color.gray)
-            .buttonStyle(.bordered)
-            .cornerRadius(5)
-        }
-    }
-    
-    // ScrollView
-    var scrollViewContainer: some View {
-        StrollViewContainer(startTimeRatio: $startTimeRatio,
-                            allowUpdate: $allowUpdate,
-                            currentTime: $currentTime,
-                            totalDuration: totalDuration,
-                            selectedRangeDuration: selectedRangeDuration)
-        .padding(.bottom)
-    }
-}
-
-
-// MARK: - StrollViewContainer
 struct StrollViewContainer: View {
     @State private var isDragging: Bool = false
     @State private var position = ScrollPosition()
     @State private var timer: Timer?
-    @State private var waveformStates: [WaveformBarState] = []
+    @State private var waveformStates: [WaveformBarData] = []
     @State private var lastContentWidth: CGFloat = 0
 
     @Binding var startTimeRatio: CGFloat
@@ -127,8 +37,8 @@ struct StrollViewContainer: View {
             ZStack(alignment: .center) {
                 // ScrollView
                 ScrollView(.horizontal, showsIndicators: false) {
-//                    Color.white
-                    WaveformContentView(barStates: waveformStates)
+                    Color.white
+//                    WaveformContentView(barStates: waveformStates)    // Custom View can't sync data
                         .frame(width: contentSizeWidth,
                                height: MusicTimelineView.UIConstants.scrollViewHeight)
                         .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
@@ -244,13 +154,14 @@ struct StrollViewContainer: View {
         return Int((width - barWidth) / (barWidth + gap))
     }
     
-    private func generateWaveformStates(for width: CGFloat) -> [WaveformBarState] {
+    private func generateWaveformStates(for width: CGFloat) -> [WaveformBarData] {
         let count = calculateBarCount(for: width)
         return (0..<count).map { _ in
-            WaveformBarState(amplitude: CGFloat.random(in: 0...1))
+            WaveformBarData(amplitude: CGFloat.random(in: 0...1))
         }
     }
 }
+
 
 // MARK: - Preference Key for Scroll Offset
 struct ScrollOffsetPreferenceKey: PreferenceKey {
@@ -259,16 +170,4 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
         value = nextValue()
     }
-}
-
-// MARK: - Preview
-
-#Preview {
-    MusicTimelineView(startTimeRatio: .constant(0),
-                      allowUpdate: .constant(false),
-                      currentTime: .constant(0),
-                      isPlaying: .constant(false),
-                      totalDuration: 80,
-                      selectedRangeDuration: 10,
-                      onResetTapped: {})
 }

@@ -7,11 +7,6 @@
 
 import Foundation
 
-struct ScrollParameters {
-    private(set) var scrollableWidth: CGFloat
-    private(set) var changeableDuration: CGFloat
-}
-
 struct MusicStateModel {
     private(set) var totalDuration: CGFloat
     private(set) var currentTime: CGFloat

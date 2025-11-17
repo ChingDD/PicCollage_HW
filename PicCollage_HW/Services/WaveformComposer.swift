@@ -23,7 +23,7 @@ struct WaveformComposer {
 
     // MARK: - Public Methods
 
-    static func makeWaveformCanvas(barStates: [WaveformBarState], height: CGFloat) -> WaveformCanvas {
+    static func makeWaveformCanvas(barStates: [WaveformBarData], height: CGFloat) -> WaveformCanvas {
         let containerView = UIView()
         containerView.backgroundColor = .clear
 
