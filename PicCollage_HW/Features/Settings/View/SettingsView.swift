@@ -53,6 +53,10 @@ struct SettingsView: View {
         }
         .onAppear {
             loadCurrentSettings()
+            // Pause playback when entering settings
+            if viewModel.isPlaying {
+                viewModel.togglePlayPause()
+            }
         }
     }
 }

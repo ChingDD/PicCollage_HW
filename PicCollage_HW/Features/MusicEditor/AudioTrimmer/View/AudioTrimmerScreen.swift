@@ -55,6 +55,12 @@ struct AudioTrimmerScreen: View {
             // Update currentTime from ViewModel
             currentTime = newState.currentTime
         }
+        .onReceive(viewModel.$isPlaying) { newValue in
+            // Sync ViewModel's isPlaying to local state
+            if newValue != isPlaying {
+                isPlaying = newValue
+            }
+        }
     }
 }
 
