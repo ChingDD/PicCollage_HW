@@ -33,7 +33,7 @@ struct KeyTimeSelectionView: View {
             keyTimeBarView
             timelineTextView
         }
-        .background(Color.gray)
+        .background(Color.myDarkGray)
     }
 }
 
@@ -100,9 +100,9 @@ extension KeyTimeSelectionView {
                     .frame(height: 40)
 
                 Rectangle()
-                    .fill(Color.cyan)
+                    .fill(Color.myDarkGray)
                     .cornerRadius(50)
-                    .frame(height: 20)
+                    .frame(height: 15)
                     .padding(.horizontal, 20)
 
                 Rectangle()
