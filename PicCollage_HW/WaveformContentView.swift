@@ -18,23 +18,17 @@ struct WaveformContentView: View {
     }
 
     var body: some View {
-        GeometryReader { geo in
-            HStack(alignment: .center, spacing: UIConstants.gap) {
-                ForEach(barStates.indices, id: \.self) { i in
-                    let amplitude = barStates[i].amplitude
-                    let height = calculateBarHeight(amplitude: amplitude, containerHeight: geo.size.height)
+        HStack(alignment: .center, spacing: UIConstants.gap) {
+            ForEach(barStates.indices, id: \.self) { i in
+                let amplitude = barStates[i].amplitude
+                let height = calculateBarHeight(amplitude: amplitude, containerHeight: 60)
 
-                    Rectangle()
-                        .fill(.white)
-                        .frame(width: UIConstants.lineWidth,
-                               height: height)
-                }
+                Rectangle()
+                    .fill(.white)
+                    .frame(width: UIConstants.lineWidth,
+                           height: height)
             }
-            .frame(width: calculateWidth(barCount: barStates.count),
-                   height: geo.size.height,
-                   alignment: .center)
         }
-        .frame(height: 100)  // 你可從外部設定
     }
 }
 

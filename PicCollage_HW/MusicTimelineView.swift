@@ -101,7 +101,9 @@ struct StrollViewContainer: View {
     @State private var isDragging: Bool = false
     @State private var position = ScrollPosition()
     @State private var timer: Timer?
-    
+    @State private var waveformStates: [WaveformBarState] = []
+    @State private var lastContentWidth: CGFloat = 0
+
     @Binding var startTimeRatio: CGFloat
     @Binding var allowUpdate: Bool
     @Binding var currentTime: CGFloat
@@ -125,7 +127,8 @@ struct StrollViewContainer: View {
             ZStack(alignment: .center) {
                 // ScrollView
                 ScrollView(.horizontal, showsIndicators: false) {
-                    Color.cyan
+//                    Color.white
+                    WaveformContentView(barStates: waveformStates)
                         .frame(width: contentSizeWidth,
                                height: MusicTimelineView.UIConstants.scrollViewHeight)
                         .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometry.size.width)
@@ -175,8 +178,21 @@ struct StrollViewContainer: View {
                         position = ScrollPosition(x: targetOffset)
                     }
                 }
+                .onAppear {
+                    // Generate waveform states only once when view appears
+                    if waveformStates.isEmpty {
+                        waveformStates = generateWaveformStates(for: contentSizeWidth)
+                        lastContentWidth = contentSizeWidth
+                    }
+                }
+                .onChange(of: contentSizeWidth) { oldWidth, newWidth in
+                    // Regenerate only when content width changes
+                    if abs(newWidth - lastContentWidth) > 0.1 {
+                        waveformStates = generateWaveformStates(for: newWidth)
+                        lastContentWidth = newWidth
+                    }
+                }
                 .frame(height:  MusicTimelineView.UIConstants.scrollViewHeight)
-                .background(Color.yellow)
             
                 // SelectedRangeView
                 Rectangle()
@@ -221,6 +237,19 @@ struct StrollViewContainer: View {
         let ratio = max(0, min(1, -offset / contentSizeWidth))
         return ratio
     }
+    
+    private func calculateBarCount(for width: CGFloat) -> Int {
+        let barWidth = 3.0
+        let gap = 3.0
+        return Int((width - barWidth) / (barWidth + gap))
+    }
+    
+    private func generateWaveformStates(for width: CGFloat) -> [WaveformBarState] {
+        let count = calculateBarCount(for: width)
+        return (0..<count).map { _ in
+            WaveformBarState(amplitude: CGFloat.random(in: 0...1))
+        }
+    }
 }
 
 // MARK: - Preference Key for Scroll Offset
@@ -235,5 +264,11 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 // MARK: - Preview
 
 #Preview {
-//    MusicTimelineView(startTimeRatio:, totalDuration: 80, selectedRangeDuration: 10)
+    MusicTimelineView(startTimeRatio: .constant(0),
+                      allowUpdate: .constant(false),
+                      currentTime: .constant(0),
+                      isPlaying: .constant(false),
+                      totalDuration: 80,
+                      selectedRangeDuration: 10,
+                      onResetTapped: {})
 }
