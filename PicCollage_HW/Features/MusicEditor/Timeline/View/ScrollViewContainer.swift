@@ -80,15 +80,14 @@ extension ScrollViewContainer {
         
         return ScrollView(.horizontal, showsIndicators: false) {
             Color.white
-//                    WaveformContentView(barStates: waveformStates)    // Custom View can't sync data
+//                WaveformContentView(barStates: waveformStates)    // Custom View can't sync data
                 .frame(width: contentSizeWidth,
                        height: MusicTimelineView.UIConstants.scrollViewHeight)
-                .padding(MusicTimelineView.UIConstants.contentInsetRatio * geometryWidth)
+                .padding(.horizontal, MusicTimelineView.UIConstants.contentInsetRatio * geometryWidth)
                 .background(
                     GeometryReader { scrollGeo in
-                        Color.clear
-                            .preference(key: ScrollOffsetPreferenceKey.self,
-                                      value: scrollGeo.frame(in: .named("scroll")).minX)
+                        Color.clear.preference(key: ScrollOffsetPreferenceKey.self,
+                                               value: scrollGeo.frame(in: .named("scroll")) .minX)
                     }
                 )
                 .id("scrollContent")

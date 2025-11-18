@@ -117,7 +117,7 @@ extension SettingsView {
 
     private var timelineLengthSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Timeline Length (% of total, optional)")
+            Text("Timeline Length (% of total)")
                 .font(.system(size: 16, weight: .semibold))
 
             TextField("e.g., 12.5", text: $timelineLengthText)

@@ -23,7 +23,7 @@ struct MusicTimelineView: View {
     
     // MARK: UI Constants
     enum UIConstants {
-        static let selectedRangeViewBorderWidth: CGFloat = 3
+        static let selectedRangeViewBorderWidth: CGFloat = 5
         static let contentInsetRatio: CGFloat = 0.25          // 25%
         static let selectedRangeWidthRatio: CGFloat = 0.5     // 50%
         static let scrollViewHeightRatio: CGFloat = 1/2.5
